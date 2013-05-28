@@ -20,7 +20,7 @@ function listen(event, callback){
 
 function init(options){
 	casper = options.casper;
-	jsonRoot = options.jsonRoot || './flowData';
+	jsonRoot = options.jsonFlowDataRoot || './flowData';
 
 	casperAssert = casper.test.assert;
 
@@ -91,15 +91,22 @@ function createFlow(name, func){
 	then(function(){
 		emit('flow.begin', {name: name});
 
-		cStep = {};
 		tree.name = name;
-		tree.children = [cStep];
+		tree.isBranchRoot = true;
+		tree.isDecisionRoot = true;
+		tree.children = [];
+
+		cStep = tree;
+
 		func();
 	});
 
 	then(function(){
 		doneSteps = [];
 		pathCount = 0;
+
+		console.log('\n~ Phantom Flow.  Running all paths for: ' + currentFlowName);
+
 		runAllThePaths(tree, []);
 	});
 
@@ -111,10 +118,14 @@ function createFlow(name, func){
 function createStep(name, func){
 	var i;
 	var newStep = {};
-	cStep.name = name;
-	cStep.action = func;
-	cStep.isStep = true;
-	cStep.children = [newStep];
+
+	newStep.name = name;
+	newStep.action = func;
+	newStep.isStep = true;
+	newStep.children = [];
+
+	cStep.children.push(newStep);
+
 	cStep = newStep;
 }
 
@@ -131,9 +142,9 @@ function createBranch(object, type){
 	var newStep;
 	var branchedStep = cStep;
 
-	branchedStep.children = [];
-	branchedStep.isDecision = type === 'decision',
-	branchedStep.isChance = type === 'chance';
+	// branchedStep.children = [];
+	// branchedStep.isDecision = type === 'decision',
+	// branchedStep.isChance = type === 'chance';
 
 	for (i in object){
 		if(object.hasOwnProperty(i)){
@@ -142,13 +153,13 @@ function createBranch(object, type){
 				name: i,
 				isBranchRoot: true,
 				isDecisionRoot: type === 'decision',
-				isChanceRoot: type === 'chance'
+				isChanceRoot: type === 'chance',
+				children: []
 			};
 
 			branchedStep.children.push(newStep);
 
-			cStep = {};
-			newStep.children = [cStep];
+			cStep = newStep;
 
 			object[i]();
 		}
@@ -162,12 +173,7 @@ function runAllThePaths(node, path){
 
 	path.push(node);
 
-	if(node.children && !node.children[0].children){
-		// prune empty nodes for visualisation
-		node.children = void 0;
-	}
-
-	if(node.children){
+	if(node.children.length){
 		node.children.forEach(function(node){
 			runAllThePaths(node, path);
 		});
@@ -182,6 +188,7 @@ function runPath(path){
 	then(function(){
 		pathCount++;
 		emit('path.begin', {index: pathCount });
+		console.log('');
 	});
 
 	path.forEach(function(node){
@@ -192,6 +199,12 @@ function runPath(path){
 				pathBranchRootNodeNames.push(node.name);
 			});
 		}
+
+		then(function(){
+			if(node.name){
+				console.log('~ ' + node.name);
+			}
+		});
 
 		if(node.action){
 			then(function(){

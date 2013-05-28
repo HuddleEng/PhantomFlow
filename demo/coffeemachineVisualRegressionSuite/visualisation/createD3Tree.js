@@ -74,35 +74,87 @@
 		.style("visibility", "hidden")
 		.text("");
 
+
+	var tooltipText = tooltip.append("div");
 	var tooltipImg = tooltip.append("img");
 
 	node.append("circle").attr("r", 10);
 
 	svg.selectAll(".step")
 		.filter(function(d, i){
+			var _this = this;
+			var failedScreenshot;
+
+			if(d.screenshot){
+				failedScreenshot = d.screenshot.replace('.png', '.fail.png');
+
+				$.get(failedScreenshot)
+					.success(function(){
+						d.failedScreenshot = failedScreenshot;
+						d.latestScreenshot = d.screenshot.replace('.png', '.diff.png');
+
+						_this.setAttribute("class", _this.className.baseVal + ' screenshotFail');
+					});
+			}
+
 			return !!d.screenshot;
 		})
 		.classed('screenshot',true)
 		.on("mouseover", function(e){
 			if( tooltip.style("visibility") === "hidden" ){
-				tooltipImg.attr("src", e.screenshot);
+				if(e.failedScreenshot){
+					tooltipText.text('Failed diff image.');
+					tooltipImg.attr("src", e.failedScreenshot);
+				} else {
+					tooltipText.text('Original/good image');
+					tooltipImg.attr("src", e.screenshot);
+				}
 			}
 			return tooltip.style("visibility", "visible");
 		})
 		.on("mousemove", function(){
 
 			var width = Number(tooltip.style("width").replace('px', ''));
+			var height = Number(tooltip.style("height").replace('px', ''));
 			var right = event.pageX + 10 + width;
+			var top = event.pageY-10 + height;
 
 			if(right > document.body.clientWidth){
-				return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX-20 - width)+"px");
+				right = event.pageX-10 - width;
 			} else {
-				return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");
+				right = event.pageX+10;
 			}
+
+			if( top > document.body.clientHeight){
+				top = event.pageY-10 - height;
+			} else {
+				top = event.pageY-10;
+			}
+
+			return tooltip.style("top", top +"px").style("left", right+"px");
 
 		})
 		.on("mouseout", function(){
 			return tooltip.style("visibility", "hidden");
+		})
+		.on("click", function(e){
+
+			if( !e.failedScreenshot ){
+				return;
+			}
+
+			if( tooltipImg.attr("src") === e.failedScreenshot ){
+				tooltipText.text('Original/good image');
+				tooltipImg.attr("src", e.screenshot);
+			} 
+			else if ( tooltipImg.attr("src") === e.screenshot ){
+				tooltipText.text('Latest/bad image');
+				tooltipImg.attr("src", e.latestScreenshot);	
+			}
+			else {
+				tooltipText.text('Failed diff image.');
+				tooltipImg.attr("src", e.failedScreenshot);	
+			}
 		});
 
 	node.append("text")

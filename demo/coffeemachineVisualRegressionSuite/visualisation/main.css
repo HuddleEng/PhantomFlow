@@ -34,9 +34,14 @@ body {
   stroke-width: 3px;
 }
 
-
 .tooltip {
   background: transparent;
+}
+
+.tooltip div {
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
 }
 
 .link {
@@ -114,6 +119,9 @@ select {
 .key span.screenshot {
   border-color: green;
 }
+.key span.failedScreenshot {
+  border-color: red;
+}
 
 .active circle {
   fill: #00ff33;
@@ -142,6 +150,30 @@ select {
     }
 }
 
+
+@-webkit-keyframes glow {
+    0% {
+        stroke:red;
+    }
+    50% {
+        stroke:darkred;
+    }
+    100% {
+        stroke:red;
+    }
+}
+@-moz-keyframes glow {
+    0% {
+        stroke:red;
+    }
+    50% {
+        stroke:darkred;
+    }
+    100% {
+        stroke:red;
+    }
+}
+
 .fail circle {
     transition: all 1s ease-in-out;
     
@@ -156,4 +188,22 @@ select {
     -moz-animation-iteration-count: infinite;
     -moz-animation-name: blink;
     -moz-animation-timing-function: ease-in-out;    
+}
+
+.screenshotFail circle {
+    cursor: pointer;
+
+    transition: all 1s ease-in-out;
+
+    -webkit-animation-direction: normal;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-name: glow;
+    -webkit-animation-timing-function: ease-in-out;
+
+    -moz-animation-direction: normal;
+    -moz-animation-duration: 1s;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-name: glow;
+    -moz-animation-timing-function: ease-in-out; 
 }

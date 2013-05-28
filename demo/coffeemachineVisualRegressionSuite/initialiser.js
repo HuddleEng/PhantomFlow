@@ -28,7 +28,8 @@ css.init({
 	screenshotRoot: home + 'screenshots/',
 	failedComparisonsRoot: home + 'failures/',
 	testRunnerUrl: url.emptyPage,
-	fileNameGetter: fileNameGetter
+	fileNameGetter: fileNameGetter,
+	addLabelToFailedImage: false
 });
 
 this.css = css;
@@ -59,6 +60,10 @@ phantomFlow.init({
 casper.start(url.emptyPage);
 
 phantom.injectJs(home + 'coffeemachine.test.js');
+
+casper.then(function(){
+	css.compareAll();
+});
 
 casper.
 run(function() {
@@ -109,7 +114,3 @@ function fileNameGetter(root, fileName){
 		return file+'.diff.png';
 	}
 }
-
-/*
-http://localhost:8080/visualisation/demo/coffeeMachineVisualRegressionSuite/screenshots/Get%20a%20coffee/Wants%20Latte/There%20is%20no%20milk/Request%20Latte.png
-*/

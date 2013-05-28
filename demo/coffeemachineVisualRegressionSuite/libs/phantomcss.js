@@ -17,6 +17,7 @@ var _emptyPageToRunTestsOn;
 var _libraryRoot = '.';
 var exitStatus;
 var _hideElements;
+var _addLabelToFailedImage = true;
 
 exports.screenshot = screenshot;
 exports.compareAll = compareAll;
@@ -38,6 +39,10 @@ function init(options){
 	_onComplete = options.onComplete || options.report || _onComplete;
 
 	_hideElements = options.hideElements;
+
+	if(options.addLabelToFailedImage !== undefined){
+		_addLabelToFailedImage = options.addLabelToFailedImage;
+	}
 }
 
 function turnOffAnimations(){
@@ -108,9 +113,9 @@ function asyncCompare(one, two, func){
 	});
 
 	casper.evaluate(function(filename){
-		window._imagediff_.run(filename);
+		window._imagediff_.run( filename );
 	}, {
-		label: one
+		label: _addLabelToFailedImage ? one : false
 	});
 
 	casper.waitFor(
@@ -221,6 +226,8 @@ function compareAll(){
 								});
 
 								casper.captureSelector(failFile, 'img');
+								casper.captureSelector(file.replace('.diff.png', '.fail.png'), 'img');
+
 							}, function(){},
 							10000
 						);

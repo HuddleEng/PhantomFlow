@@ -72,7 +72,7 @@ This example demonstrates integration of PhantomFlow with PhantomCSS (https://gi
 	}
 
 	function goToMachine (){
-		css.screenshot('body');
+
 		casper.click('#coffeemachinebutton');
 		casper.waitForSelector(
 			'#myModal:not([style*="display: none"])', 

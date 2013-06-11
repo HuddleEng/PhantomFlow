@@ -1,7 +1,7 @@
 /*
 Author: James Cryer
 Company: Huddle
-Last updated date: 07 May 2013
+Last updated date: 11 Jun 2013
 URL: https://github.com/Huddle/PhantomCSS
 More: http://tldr.huddle.com/blog/css-testing/
 */

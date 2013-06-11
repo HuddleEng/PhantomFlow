@@ -1,209 +1,208 @@
 body {
-  background: black;
-  font-family: sans-serif;
-  font-size: 11px;
+	background: black;
+	font-family: sans-serif;
+	font-size: 11px;
 }
 
 .step circle {
-  fill: orange;
-  stroke: grey;
-  stroke-width: 2px;
+	fill: orange;
+	stroke: grey;
+	stroke-width: 2px;
 }
 
 .chanceRoot circle {
-  fill: #333;
-  stroke: grey;
-  stroke-width: 1px;  
+	fill: #333;
+	stroke: grey;
+	stroke-width: 1px;  
 }
 
 .decisionRoot circle {
-  fill: darkblue;
-  stroke: grey;
-  stroke-width: 1px;  
+	fill: darkblue;
+	stroke: grey;
+	stroke-width: 1px;  
 }
 
 .decision circle,
 .chance circle {
-  fill: black;
-  stroke: grey;
-  stroke-width: 1px;
+	fill: black;
+	stroke: grey;
+	stroke-width: 1px;
 }
 
 .screenshot circle {
-  stroke: green;
-  stroke-width: 3px;
+	stroke: green;
+	stroke-width: 3px;
 }
 
 .tooltip {
-  background: transparent;
+	background: transparent;
 }
 
 .tooltip div {
-  color: white;
-  font-weight: bold;
-  font-size: 12px;
+	color: white;
+	font-weight: bold;
+	font-size: 12px;
 }
 
 .link {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: 1.5px;
+	fill: none;
+	stroke: #ccc;
+	stroke-width: 1.5px;
 }
 
 .text {
-  display: block;
-  stroke: #eee;
-  font-weight: normal;
-  font-size: 12px;
+	display: block;
+	stroke: #eee;
+	font-weight: normal;
+	font-size: 12px;
 }
 
 .endtext{
-  text-anchor: start;
+	text-anchor: start;
 }
 .decisiontext{
-  text-anchor: end;
-  fill: black;
-  stroke: #aaa;
-  stroke-width: 1px;
-  font-size: 11px;
+	text-anchor: end;
+	fill: black;
+	stroke: #aaa;
+	stroke-width: 1px;
+	font-size: 11px;
 }
 .chancetext{
-  text-anchor: end;
-  fill: black;
-  stroke: #aaa;
-  stroke-width: 1px;
-  font-size: 11px;
+	text-anchor: end;
+	fill: black;
+	stroke: #aaa;
+	stroke-width: 1px;
+	font-size: 11px;
 }
 .steptext{
-  text-anchor: end;
+	text-anchor: end;
 }
 
 select {
-  position:absolute;
-  top: 10px;
-  left: 10px;
+	position:absolute;
+	top: 10px;
+	left: 10px;
 }
 
 .key {
-  height: 100px;
-  width: 200px;
-  position:absolute;
-  top: 60px;
-  left: 10px;
-  color: white;
-  line-height: 8px;
+	height: 100px;
+	width: 200px;
+	position:absolute;
+	top: 60px;
+	left: 10px;
+	color: white;
+	line-height: 8px;
 }
 .key span {
-  display: inline-block;
-  width: 12px;
-  border-radius: 50%;
-  border: 2px solid grey;
-  height: 12px;
+	display: inline-block;
+	width: 12px;
+	border-radius: 50%;
+	border: 2px solid grey;
+	height: 12px;
 }
 
 .key span.unimplemented {
-  background-color: orange;
+	background-color: orange;
 }
 .key span.decision {
-  background-color: darkblue;
+	background-color: darkblue;
 }
 .key span.chance {
-  background-color: #333;
+	background-color: #333;
 }
 .key span.passed {
-  background-color: #00ff33;
+	background-color: #00ff33;
 }
 .key span.failed {
-  background-color: red;
+	background-color: red;
 }
 .key span.screenshot {
-  border-color: green;
+	border-color: green;
 }
 .key span.failedScreenshot {
-  border-color: red;
+	border-color: red;
 }
 
 .active circle {
-  fill: #00ff33;
+	fill: #00ff33;
 }
 
 @-webkit-keyframes blink {
-    0% {
-        fill:red;
-    }
-    50% {
-        fill:darkred;
-    }
-    100% {
-        fill:red;
-    }
+	0% {
+			fill:red;
+	}
+	50% {
+			fill:darkred;
+	}
+	100% {
+			fill:red;
+	}
 }
 @-moz-keyframes blink {
-    0% {
-        fill:red;
-    }
-    50% {
-        fill:darkred;
-    }
-    100% {
-        fill:red;
-    }
+	0% {
+			fill:red;
+	}
+	50% {
+			fill:darkred;
+	}
+	100% {
+			fill:red;
+	}
 }
-
 
 @-webkit-keyframes glow {
-    0% {
-        stroke:red;
-    }
-    50% {
-        stroke:darkred;
-    }
-    100% {
-        stroke:red;
-    }
+	0% {
+			stroke:red;
+	}
+	50% {
+			stroke:darkred;
+	}
+	100% {
+			stroke:red;
+	}
 }
 @-moz-keyframes glow {
-    0% {
-        stroke:red;
-    }
-    50% {
-        stroke:darkred;
-    }
-    100% {
-        stroke:red;
-    }
+	0% {
+			stroke:red;
+	}
+	50% {
+			stroke:darkred;
+	}
+	100% {
+			stroke:red;
+	}
 }
 
 .fail circle {
-    transition: all 1s ease-in-out;
-    
-    -webkit-animation-direction: normal;
-    -webkit-animation-duration: 1s;
-    -webkit-animation-iteration-count: infinite;
-    -webkit-animation-name: blink;
-    -webkit-animation-timing-function: ease-in-out;
-    
-    -moz-animation-direction: normal;
-    -moz-animation-duration: 1s;
-    -moz-animation-iteration-count: infinite;
-    -moz-animation-name: blink;
-    -moz-animation-timing-function: ease-in-out;    
+	transition: all 1s ease-in-out;
+	
+	-webkit-animation-direction: normal;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-name: blink;
+	-webkit-animation-timing-function: ease-in-out;
+	
+	-moz-animation-direction: normal;
+	-moz-animation-duration: 1s;
+	-moz-animation-iteration-count: infinite;
+	-moz-animation-name: blink;
+	-moz-animation-timing-function: ease-in-out;    
 }
 
 .screenshotFail circle {
-    cursor: pointer;
+	cursor: pointer;
 
-    transition: all 1s ease-in-out;
+	transition: all 1s ease-in-out;
 
-    -webkit-animation-direction: normal;
-    -webkit-animation-duration: 1s;
-    -webkit-animation-iteration-count: infinite;
-    -webkit-animation-name: glow;
-    -webkit-animation-timing-function: ease-in-out;
+	-webkit-animation-direction: normal;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-name: glow;
+	-webkit-animation-timing-function: ease-in-out;
 
-    -moz-animation-direction: normal;
-    -moz-animation-duration: 1s;
-    -moz-animation-iteration-count: infinite;
-    -moz-animation-name: glow;
-    -moz-animation-timing-function: ease-in-out; 
+	-moz-animation-direction: normal;
+	-moz-animation-duration: 1s;
+	-moz-animation-iteration-count: infinite;
+	-moz-animation-name: glow;
+	-moz-animation-timing-function: ease-in-out; 
 }

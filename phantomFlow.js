@@ -1,3 +1,10 @@
+/*
+Author: James Cryer
+Company: Huddle
+Last updated date: 11 Jun 2013
+URL: https://github.com/Huddle/PhantomFlow
+*/
+
 var tree = {};
 var cStep;
 var pathCount;
@@ -12,6 +19,7 @@ var currentFlowName;
 
 exports.init = init;
 exports.listen = listen;
+exports.updateJsonRoot = updateJsonRoot;
 
 function listen(event, callback){
 	casper.on('phantomflow.'+event, callback);
@@ -36,6 +44,10 @@ function init(options){
 
 	var obj = options.scope || {};
 	return extend( obj );
+}
+
+function updateJsonRoot(root){
+	jsonRoot = root;
 }
 
 function onCasperFail(){

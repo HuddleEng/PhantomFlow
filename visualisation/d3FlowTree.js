@@ -17,7 +17,9 @@ function appendKey(){
 		'</div>');
 }
 
-function createD3Tree(root){
+function createD3Tree(root, config){
+
+	var fileRoot = config.root || '';
 
 	var width = $(window).width();
 	var height = 1200;
@@ -100,6 +102,9 @@ function createD3Tree(root){
 			var failedScreenshot;
 
 			if(d.screenshot){
+
+				d.screenshot = fileRoot + d.screenshot;
+
 				failedScreenshot = d.screenshot.replace('.png', '.fail.png');
 
 				$.get(failedScreenshot)

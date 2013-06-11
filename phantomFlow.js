@@ -20,7 +20,7 @@ function listen(event, callback){
 
 function init(options){
 	casper = options.casper;
-	jsonRoot = options.jsonFlowDataRoot || './flowData';
+	jsonRoot = options.dataRoot || './flowData';
 
 	casperAssert = casper.test.assert;
 

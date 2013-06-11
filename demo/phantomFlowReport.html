@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Coffee Machine: Phantom Flow Visualisation</title>
+
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="/visualisation/d3FlowTree.js"></script>
+
+<link href="/visualisation/main.css" rel="stylesheet">
+
+</head>
+<body>
+
+	<script>
+
+		appendKey();
+
+		$.get('/demo/data/Get a coffee.json').success(function(data){
+			if(typeof data !== 'object'){
+				data = JSON.parse(data);
+			}
+			createD3Tree( data );
+		});
+
+	</script>
+
+</body>
+</html>

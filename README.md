@@ -5,7 +5,7 @@ PhantomFlow
 
 ### Why?
 
-Because user interfaces are complex, and not just UI code, user interactions can create an endless number of testable scenarios despite apparent UI simplicity. Representing such complexity in existing behaviour-driven frameworks can often feel clumsy, hard to interpret, and provide no clear way to gage UI complexity (and associated costs).
+Because user interfaces are complex, and not just UI code, user interactions can create an endless number of testable scenarios despite apparent UI simplicity. Representing such complexity in existing behaviour-driven frameworks can often feel clumsy, hard to interpret, and does not provide a transparent way to communicate UI complexity (and associated costs).
 
 People have been representing complex information in graphs for a long time - so why don't we?
 

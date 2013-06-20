@@ -5,6 +5,7 @@ Last updated date: 11 Jun 2013
 URL: https://github.com/Huddle/PhantomFlow
 */
 
+var casper;
 var tree = {};
 var cStep;
 var pathCount;

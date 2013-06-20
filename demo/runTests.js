@@ -34,6 +34,12 @@ css.init({
 
 this.css = css;
 
+phantomFlow.init({
+	casper: casper,
+	scope: this,
+	dataRoot: home + 'data/'
+});
+
 phantomFlow.
 	listen('step.begin', disableScreenshots).
 	listen('step.end', enableScreenshots).
@@ -46,12 +52,6 @@ phantomFlow.
 		// extend node data with screenshot
 		e.node.screenshot = screenshotPath;
 	});
-
-phantomFlow.init({
-	casper: casper,
-	scope: this,
-	dataRoot: home + 'data/'
-});
 
 casper.start(url.emptyPage);
 

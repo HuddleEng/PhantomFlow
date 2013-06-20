@@ -17,7 +17,7 @@ By default PhantomFlow will supress Casper asserts on steps that have already be
 
 ### Example
 
-The [demo](http://github.com/Huddle/PhantomFlow/tree/master/demo) describes a fictional Coffee machine application, An example [PhantomFlow Report](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport.html) shows how these tests can be visualised using [d3.js](http://d3js.org/).
+The [demo](http://github.com/Huddle/PhantomFlow/tree/master/demo) describes a fictional Coffee machine application, An example [PhantomFlow Report](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport.html) shows how these tests can be visualised using [d3.js](http://d3js.org/) (HINT: Hover over the nodes to see screenshots, one test has a failed visual regression test, hover over the node and click to view the original and new screenshots).
 
 ```javascript
 

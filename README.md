@@ -1,7 +1,7 @@
 PhantomFlow
 ===========
 
-**Describe and visualise user flows through tests**. An *experimental* approach to Web user interface testing, based on [Decision Trees](http://en.wikipedia.org/wiki/Decision_tree). Using [PhantomJS](http://github.com/ariya/phantomjs/), [CasperJS](http://github.com/n1k0/casperjs) and [PhantomCSS](http://github.com/Huddle/PhantomCSS), PhantomFlow tries to enable a fluent way of describing user flows in code whilst generating structured tree data for [visualisation](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport.html).
+**Describe and visualise user flows through tests**. An *experimental* approach to Web user interface testing, based on [Decision Trees](http://en.wikipedia.org/wiki/Decision_tree). Using [PhantomJS](http://github.com/ariya/phantomjs/), [CasperJS](http://github.com/n1k0/casperjs) and [PhantomCSS](http://github.com/Huddle/PhantomCSS), PhantomFlow tries to enable a fluent way of describing user flows in code whilst generating structured tree data for **[visualisation](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport)**.
 
 ### Why?
 
@@ -17,7 +17,7 @@ By default PhantomFlow will supress Casper asserts on steps that have already be
 
 ### Example
 
-The [demo](http://github.com/Huddle/PhantomFlow/tree/master/demo) describes a fictional Coffee machine application, An example [PhantomFlow Report](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport.html) shows how these tests can be visualised using [d3.js](http://d3js.org/) (HINT: Hover over the nodes to see screenshots, one test has a failed visual regression test, hover over the node and click to view the original and new screenshots).
+The [demo](http://github.com/Huddle/PhantomFlow/tree/master/demo) describes a fictional Coffee machine application, An example [PhantomFlow Report](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport) shows how these tests can be visualised using [d3.js](http://d3js.org/) (HINT: Hover over the nodes to see screenshots, one test has a failed visual regression test, hover over the node and click to view the original and new screenshots).
 
 ```javascript
 
@@ -60,7 +60,7 @@ flow("Get a coffee", function(){
 
 ```
 
-To try out the demo for yourself run `phantomjs demo/runTests.js` from the command line., Note that I have included the PhantomJS executable for convenience, if you're not on Windows you'll need to [download](http://phantomjs.org/download.html) PhantomJS for your OS.
+To try out the demo for yourself run `phantomjs demo/runTests.js` from the command line., Note that I have included the PhantomJS executable for convenience, if you're not on Windows you'll need to [download](http://phantomjs.org/download.html) PhantomJS for your OS.  The [visualisation](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport) uses an Ajax request to get it's data, so you'll need to view it with something like [http-server](https://github.com/nodeapps/http-server) for it to work locally.
 
 Below is an example of the required setup code.
 

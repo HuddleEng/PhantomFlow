@@ -19,6 +19,8 @@ function appendKey(){
 
 function createD3Tree(root, config){
 
+	config = config || {};
+
 	var fileRoot = config.root || '';
 
 	var width = $(window).width();

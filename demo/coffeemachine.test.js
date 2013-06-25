@@ -153,7 +153,7 @@ This example demonstrates integration of PhantomFlow with PhantomCSS (https://gi
 	function requestEspresso (){
 		casper.click('#espresso-button');
 		casper.waitForSelector(
-			'.alert:not([style*="display: none"])', 
+			'.alert-danger[style*="display: none"]', 
 			function success(){
 				css.screenshot('#myModal');
 				casper.test.pass('Should see espresso choice');

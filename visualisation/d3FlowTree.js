@@ -1,5 +1,5 @@
 /*
-	Visualisation based on http://bl.ocks.org/mbostock/4063570
+	Example visualisation based on http://bl.ocks.org/mbostock/4063570
 	
 	D3.js and jQuery are dependencies
 
@@ -24,8 +24,8 @@ function createD3Tree(root, config){
 	var fileRoot = config.root || '';
 
 	var width = $(window).width();
-	var height = 1200;
-	var cluster = d3.layout.cluster().size([height , width - 400]);
+	var height = 1000;
+	var cluster = d3.layout.cluster().size([height , width - 220]);
 	var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x]; });
 
 	var nodes = cluster.nodes(root);
@@ -35,7 +35,7 @@ function createD3Tree(root, config){
 		.attr("width", width)
 		.attr("height", height)
 		.append("g")
-		.attr("transform", "translate(160,-10)");
+		.attr("transform", "translate(100,-10)");
 
 	d3.select(self.frameElement).style("height", height + "px");
 
@@ -136,19 +136,19 @@ function createD3Tree(root, config){
 
 			var width = Number(tooltip.style("width").replace('px', ''));
 			var height = Number(tooltip.style("height").replace('px', ''));
-			var right = event.pageX + 10 + width;
-			var top = event.pageY-10 + height;
+			var right = d3.event.pageX + 10 + width;
+			var top = d3.event.pageY-10 + height;
 
 			if(right > document.body.clientWidth){
-				right = event.pageX-10 - width;
+				right = d3.event.pageX-10 - width;
 			} else {
-				right = event.pageX+10;
+				right = d3.event.pageX+10;
 			}
 
 			if( top > document.body.clientHeight){
-				top = event.pageY-10 - height;
+				top = d3.event.pageY-10 - height;
 			} else {
-				top = event.pageY-10;
+				top = d3.event.pageY-10;
 			}
 
 			return tooltip.style("top", top +"px").style("left", right+"px");
@@ -177,10 +177,12 @@ function createD3Tree(root, config){
 			}
 		});
 
+	var dy = !!window.chrome ? 6 : 22;
+
 	node.append("text")
-		.attr("dx", function(d) { return d.isBranchRoot ? 9 : d.children ? -12 : 12; })
-		.attr("dy", function(d) { return d.isBranchRoot ? 20 : d.children ? 6 : 6; })
+		.attr("dx", function(d,e, f) { return d.isBranchRoot ? 8 : d.children ? -15 : 15; })
+		.attr("dy", function(d) { return d.isBranchRoot ? 22 : d.children ? dy  : dy ; })
 		.attr("class", function(d) { return d.isDecisionRoot ? 'text decisiontext' : d.isChanceRoot ? 'text chancetext' : d.children ? 'text steptext' : 'text endtext'; })
-		.attr("transform",  function(d) { return (d.children && !d.isBranchRoot) ? "rotate(320)" : "rotate(0)"; })
+		.attr("transform",  function(d) { return (d.children && !d.isBranchRoot) ? "rotate(330)" : "rotate(0)"; })
 		.text(function(d) { return d.name; });
 }

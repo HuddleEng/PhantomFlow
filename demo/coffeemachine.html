@@ -16,8 +16,9 @@
 				color: #333;
 			}
 
-			#cappuccino-success{
-				background-color: green;
+			/* Comment out this block to fix failing visual regression test */
+			#cappuccino-success { 
+				background-color: #66aa66;
 			}
 
 		</style>
@@ -96,7 +97,7 @@
 
 			window.async_isThereMilk(function(hasMilk){
 				if(hasMilk){
-					$('#latte-success').show();
+					//$('#latte-success').show(); // Un-comment to fix failing functional test
 				} else {
 					$('#milk-fail').show();
 				}
@@ -114,6 +115,7 @@
 			});
 		});
 		$('#espresso-button').click(function(){
+			$('#milk-fail').hide();
 			$('#screen-one').hide();
 			$('#espresso-option').show();
 		});

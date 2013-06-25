@@ -1,15 +1,18 @@
 body {
-	background: black;
+	background: #222;
 	font-family: sans-serif;
 	font-size: 11px;
 }
+
 
 .step circle {
 	fill: orange;
 	stroke: grey;
 	stroke-width: 2px;
 }
-
+.active circle {
+	fill: #338833;
+}
 .chanceRoot circle {
 	fill: #333;
 	stroke: grey;
@@ -30,7 +33,7 @@ body {
 }
 
 .screenshot circle {
-	stroke: green;
+	stroke: lightgreen;
 	stroke-width: 3px;
 }
 
@@ -60,20 +63,15 @@ body {
 .endtext{
 	text-anchor: start;
 }
-.decisiontext{
-	text-anchor: end;
+.decisiontext,
+.chancetext {
+	text-anchor: middle;
 	fill: black;
-	stroke: #aaa;
+	stroke: #ccc;
 	stroke-width: 1px;
 	font-size: 11px;
 }
-.chancetext{
-	text-anchor: end;
-	fill: black;
-	stroke: #aaa;
-	stroke-width: 1px;
-	font-size: 11px;
-}
+
 .steptext{
 	text-anchor: end;
 }
@@ -95,10 +93,12 @@ select {
 }
 .key span {
 	display: inline-block;
-	width: 12px;
+	width: 14px;
 	border-radius: 50%;
 	border: 2px solid grey;
-	height: 12px;
+	height: 14px;
+	position: relative;
+	top: 4px;
 }
 
 .key span.unimplemented {
@@ -111,21 +111,26 @@ select {
 	background-color: #333;
 }
 .key span.passed {
-	background-color: #00ff33;
+	background-color: #338833;
 }
 .key span.failed {
 	background-color: red;
 }
 .key span.screenshot {
-	border-color: green;
+	border-color: #66dd66;
+	height: 11px;
+	width: 11px;
+	border-width: 4px;
 }
 .key span.failedScreenshot {
 	border-color: red;
+	height: 11px;
+	width: 11px;
+	border-width: 4px;
 }
 
-.active circle {
-	fill: #00ff33;
-}
+
+
 
 @-webkit-keyframes blink {
 	0% {

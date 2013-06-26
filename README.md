@@ -9,13 +9,9 @@ Because user interfaces are complex, and not just UI code, user interactions can
 
 People have been representing complex information in graphs for a long time - so why don't we?
 
-### How?
-
-PhantomFlow builds up an in memory tree from your tests and then executes each unique path as a series of sequential steps. The tree is augmented with information about test failures and the location of screenshots used for visual regression testing.  The tree is then stringified as JSON and stored in a file which can be read, parsed and visualised at a later point.
-
-By default PhantomFlow will supress Casper asserts on steps that have already been executed.
-
 ### Example
+
+![PhantomFlow Report: Visualisation of example test suite](http://huddle.github.com/PhantomFlow/visualisation-example-image.png)
 
 The [demo](http://github.com/Huddle/PhantomFlow/tree/master/demo) describes a fictional Coffee machine application, An example [PhantomFlow Report](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport) shows how these tests can be visualised using [d3.js](http://d3js.org/) (HINT: Hover over the nodes to see screenshots, one test has a failed visual regression test, hover over the node and click to view the original and new screenshots).
 
@@ -89,6 +85,12 @@ phantomFlow.
 	listen('uniqueStep.end', function(e){});
 
 ```
+
+### How?
+
+PhantomFlow builds up an in memory tree from your tests and then executes each unique path as a series of sequential steps. The tree is augmented with information about test failures and the location of screenshots used for visual regression testing.  The tree is then stringified as JSON and stored in a file which can be read, parsed and visualised at a later point.
+
+By default PhantomFlow will supress Casper asserts on steps that have already been executed.
 
 --------------------------------------
 

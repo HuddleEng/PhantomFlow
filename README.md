@@ -13,7 +13,7 @@ People have been representing complex information in graphs for a long time - so
 
 ![PhantomFlow Report: Visualisation of example test suite](http://huddle.github.com/PhantomFlow/visualisation-example-image.png)
 
-The [demo](http://github.com/Huddle/PhantomFlow/tree/master/demo) describes a fictional Coffee machine application, An example [PhantomFlow Report](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport) shows how these tests can be visualised using [d3.js](http://d3js.org/) (HINT: Hover over the nodes to see screenshots, one test has a failed visual regression test, hover over the node and click to view the original and new screenshots).
+The [demo](http://github.com/Huddle/PhantomFlow/tree/master/demo) describes a fictional Coffee machine application, An example **[PhantomFlow Report](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport)** shows how these tests can be visualised using [d3.js](http://d3js.org/) **(HINT: Hover over the nodes to see screenshots, one test has a failed visual regression test, hover over the node and click to view the original and new screenshots)**.
 
 ```javascript
 

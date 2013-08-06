@@ -1,7 +1,7 @@
 /*
 Author: James Cryer
 Company: Huddle
-Last updated date: 20 Jun 2013
+Last updated date: 06 Aug 2013
 URL: https://github.com/Huddle/PhantomCSS
 More: http://tldr.huddle.com/blog/css-testing/
 */
@@ -13,7 +13,6 @@ var _diffRoot = false;
 var _count = 0;
 var _realPath;
 var _diffsToProcess = [];
-var _emptyPageToRunTestsOn;
 var _libraryRoot = '.';
 var exitStatus;
 var _hideElements;
@@ -31,7 +30,6 @@ exports.getExitStatus = getExitStatus;
 
 function init(options){
 	casper = options.casper || casper;
-	_emptyPageToRunTestsOn = options.testRunnerUrl || _emptyPageToRunTestsOn;
 	_libraryRoot = options.libraryRoot || _libraryRoot;
 	_root = options.screenshotRoot || _root;
 	_diffRoot = options.failedComparisonsRoot || _diffRoot;
@@ -80,6 +78,12 @@ function _fileNameGetter(root, fileName){
 }
 
 function screenshot(selector, timeToWait, hideSelector, fileName){
+	
+	if(isNaN(Number(timeToWait)) && typeof timeToWait === 'string'){
+		fileName = timeToWait;
+		timeToWait = void 0;
+	}
+
 	casper.captureBase64('png'); // force pre-render
 	casper.wait(timeToWait || 250, function(){
 
@@ -212,7 +216,8 @@ function compareAll(exclude){
 			tests.push(test);
 		} else {
 			casper.
-			thenOpen (_emptyPageToRunTestsOn, function (){
+			thenOpen ( _libraryRoot+fs.separator+"resemblejscontainer.html" , function (){
+
 				asyncCompare(baseFile, file, function(isSame, mismatch){
 
 					if(!isSame){

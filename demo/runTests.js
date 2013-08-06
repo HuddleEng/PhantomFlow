@@ -27,7 +27,6 @@ css.init({
 	casper: casper,
 	libraryRoot: './libs/',
 	screenshotRoot: home + 'screenshots/',
-	testRunnerUrl: url.emptyPage,
 	fileNameGetter: fileNameGetter,
 	addLabelToFailedImage: false
 });

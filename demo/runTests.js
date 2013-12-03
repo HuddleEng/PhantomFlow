@@ -10,22 +10,20 @@ Run from the command line: phantomjs demo/initialiser.js
 var home = './demo/';
 var fs = require('fs');
 
-phantom.casperPath = './libs/CasperJs/';
-phantom.injectJs(phantom.casperPath + '/bin/bootstrap.js');
 var casper = require('casper').create({viewportSize: {width: 1027, height: 800}});
 
-var phantomFlow = require('./phantomFlow.js');
+var phantomFlow = require('../phantomFlow.js');
 var flowPathName;
 var screenshotPath;
 
-var css = require( './libs/phantomcss.js');
+var css = require( '../libs/PhantomCSS/phantomcss.js');
 var css_screenshot = css.screenshot;
 
 var url = initPageOnServer(home + 'coffeemachine.html');
 
 css.init({
 	casper: casper,
-	libraryRoot: './libs/',
+	libraryRoot: './libs/PhantomCSS/ResembleJs', // relative to Phantom working Directory
 	screenshotRoot: home + 'screenshots/',
 	fileNameGetter: fileNameGetter,
 	addLabelToFailedImage: false

@@ -1,7 +1,7 @@
 PhantomFlow
 ===========
 
-**Describe and visualise user flows through tests**. An *experimental* approach to Web user interface testing, based on [Decision Trees](http://en.wikipedia.org/wiki/Decision_tree). Using [PhantomJS](http://github.com/ariya/phantomjs/), [CasperJS](http://github.com/n1k0/casperjs) and [PhantomCSS](http://github.com/Huddle/PhantomCSS), PhantomFlow tries to enable a fluent way of describing user flows in code whilst generating structured tree data for **[visualisation](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport)**.
+**Describe and visualise user flows through tests**. An *experimental* approach to UI testing, based on [Decision Trees](http://en.wikipedia.org/wiki/Decision_tree). Using [PhantomJS](http://github.com/ariya/phantomjs/), [CasperJS](http://github.com/n1k0/casperjs) and [PhantomCSS](http://github.com/Huddle/PhantomCSS), PhantomFlow tries to enable a fluent way of describing user flows in code whilst generating structured tree data for **[visualisation](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport)**.
 
 ### Why?
 
@@ -56,7 +56,11 @@ flow("Get a coffee", function(){
 
 ```
 
-To try out the demo for yourself run `phantomjs demo/runTests.js` from the command line., Note that I have included the PhantomJS executable for convenience, if you're not on Windows you'll need to [download](http://phantomjs.org/download.html) PhantomJS for your OS.  The [visualisation](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport) uses an Ajax request to get it's data, so you'll need to view it with something like [http-server](https://github.com/nodeapps/http-server) for it to work locally.
+To try out the demo for yourself run from the command line.
+* On Windows `casperjs demo/runTests.js` (Using the bundled .bat file)
+* On OSX `casperjs test demo/runTests.js` (Using your locally installed CasperJS (See [Installing CasperJS from Homebrew](http://docs.casperjs.org/en/latest/installation.html#installing-from-homebrew-osx))
+
+The [visualisation](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport) uses an Ajax request to get it's data, so you'll need to view it with something like [http-server](https://github.com/nodeapps/http-server) for it to work locally.
 
 Below is an example of the required setup code.
 
@@ -91,6 +95,10 @@ phantomFlow.
 PhantomFlow builds up an in memory tree from your tests and then executes each unique path as a series of sequential steps. The tree is augmented with information about test failures and the location of screenshots used for visual regression testing.  The tree is then stringified as JSON and stored in a file which can be read, parsed and visualised at a later point.
 
 By default PhantomFlow will supress Casper asserts on steps that have already been executed.
+
+### What next?
+
+We've been using this testing style for many months on Huddle's biggest UI application. It's still an evolving idea but for those of us that actively worked on it, it's making a huge difference to the way we think about UI, and how we communicate about UI. It supports TDD well, we use it for UI unit testing but it has great potential for end-to-end as well. I'm working on a grunt plugin for PhantomFlow which will hopefully make setup a little less painful.  I'd also like to do more work around the visualisation.  Of course, this is an Open Source project and it would be great to see more contributions.
 
 --------------------------------------
 

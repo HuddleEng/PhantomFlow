@@ -197,6 +197,7 @@ function runAllThePaths(node, path){
 
 function runPath(path){
 	var pathBranchRootNodeNames = [];
+	var contextForFlow = {};
 
 	then(function(){
 		pathCount++;
@@ -234,7 +235,7 @@ function runPath(path){
 					emit('uniqueStep.begin',e);
 				}
 
-				node.action();
+				node.action(contextForFlow);
 			});
 			then(function(){
 				var pathAsString = pathBranchRootNodeNames.map(function(i){return safe(i);}).join('/') + '/' + safe(node.name);

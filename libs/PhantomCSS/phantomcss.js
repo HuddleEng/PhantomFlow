@@ -1,7 +1,7 @@
 /*
 Author: James Cryer
 Company: Huddle
-Last updated date: 12 Nov 2013
+Last updated date: 14 Jan 2014
 URL: https://github.com/Huddle/PhantomCSS
 More: http://tldr.huddle.com/blog/css-testing/
 */
@@ -13,20 +13,25 @@ var _diffRoot = '.'+fs.separator+'failures';
 var _count = 0;
 var _realPath;
 var _diffsToProcess = [];
-var _libraryRoot = '.'+fs.separator+'ResembleJs';
+var _libraryRoot = '.';
 var exitStatus;
 var _hideElements;
 var _addLabelToFailedImage = true;
 var _test_match;
 var _test_exclude;
+var _mismatchTolerance = 0.05;
+var diffsCreated = [];
 
 exports.screenshot = screenshot;
 exports.compareAll = compareAll;
 exports.compareMatched = compareMatched;
+exports.compareExplicit = compareExplicit;
+exports.compareSession = compareSession;
 exports.init = init;
 exports.update = init;
 exports.turnOffAnimations = turnOffAnimations;
 exports.getExitStatus = getExitStatus;
+exports.getCreatedDiffFiles = getCreatedDiffFiles;
 
 function init(options){
 
@@ -45,6 +50,8 @@ function init(options){
 
 	_hideElements = options.hideElements;
 
+	_mismatchTolerance = options.mismatchTolerance || _mismatchTolerance;
+
 	if(options.addLabelToFailedImage !== undefined){
 		_addLabelToFailedImage = options.addLabelToFailedImage;
 	}
@@ -61,7 +68,7 @@ function turnOffAnimations(){
 			document.body.appendChild(css);
 
 			if(jQuery){
-				$.fx.off = true;
+				jQuery.fx.off = true;
 			}
 		},false);
 	});
@@ -90,6 +97,8 @@ function screenshot(selector, timeToWait, hideSelector, fileName){
 	casper.captureBase64('png'); // force pre-render
 	casper.wait(timeToWait || 250, function(){
 
+		var name = _fileNameGetter(_root, fileName);
+
 		if(hideSelector || _hideElements){
 			casper.evaluate(function(s1, s2){
 				if(s1){
@@ -103,7 +112,12 @@ function screenshot(selector, timeToWait, hideSelector, fileName){
 		}
 
 		try{
-			casper.captureSelector( _fileNameGetter(_root, fileName) , selector);
+
+			casper.captureSelector( name , selector );
+
+			if(/\.diff\.png/.test(name)){
+				diffsCreated.push(name);
+			}
 		}
 		catch(ex){
 			console.log("Screenshot FAILED: " + ex.message);
@@ -190,25 +204,46 @@ function getDiffs (path){
 	_realPath = _realPath.replace(fs.separator + path, '');
 }
 
+function getCreatedDiffFiles(){
+	var d = diffsCreated;
+	diffsCreated = [];
+	return d;
+}
+
 function compareMatched(match, exclude){
+	// Search for diff images, but only compare matched filenames
 	_test_match = typeof match === 'string' ? new RegExp(match) : match;
 	compareAll(exclude);
 }
 
-function compareAll(exclude){
+function compareExplicit(list){
+	// An explicit list of diff images to compare ['/dialog.diff.png', '/header.diff.png']
+	compareAll(void 0, list);
+}
+
+function compareSession(list){
+	// compare the diffs created in this session
+	compareAll(void 0, getCreatedDiffFiles() );
+}
+
+function compareAll(exclude, list){
 	var tests = [];
 	var fails = 0;
 	var errors = 0;
 
 	_test_exclude = typeof exclude === 'string' ? new RegExp(exclude) : exclude;
-	_realPath = undefined;
-
-	_diffsToProcess = [];
-
-	getDiffs(_root);
+	
+	if (list){
+		_diffsToProcess = list;
+	} else {
+		_realPath = undefined;
+		getDiffs(_root);	
+	}
 
 	_diffsToProcess.forEach(function(file){
+
 		var baseFile = file.replace('.diff', '');
+		var html = _libraryRoot+fs.separator+"ResembleJs"+fs.separator+"resemblejscontainer.html";
 		var test = {
 			filename: baseFile
 		};
@@ -219,11 +254,12 @@ function compareAll(exclude){
 			tests.push(test);
 		} else {
 
-			console.log(fs.workingDirectory );
-			console.log(fs.absolute(_libraryRoot));
+			if( !fs.isFile(html) ){
+				console.log('Can\'t find Resemble container. Perhaps the library root is mis configured. ('+html+')');
+				return;
+			}
 
-			casper.
-			thenOpen ( _libraryRoot+fs.separator+"resemblejscontainer.html" , function (){
+			casper.thenOpen ( html , function (){
 
 				asyncCompare(baseFile, file, function(isSame, mismatch){
 
@@ -299,9 +335,9 @@ function compareAll(exclude){
 
 function initClient(){
 
-	casper.page.injectJs(_libraryRoot+fs.separator+'resemble.js');
+	casper.page.injectJs(_libraryRoot+fs.separator+'ResembleJs'+fs.separator+'resemble.js');
 
-	casper.evaluate(function(){
+	casper.evaluate(function(mismatchTolerance){
 		
 		var result;
 
@@ -343,7 +379,7 @@ function initClient(){
 				onComplete(function(data){
 					var diffImage;
 
-					if(Number(data.misMatchPercentage) > 0.05){
+					if(Number(data.misMatchPercentage) > mismatchTolerance){
 						result = data.misMatchPercentage;
 					} else {
 						result = false;
@@ -351,12 +387,14 @@ function initClient(){
 
 					window._imagediff_.hasResult = true;
 
-					if(Number(data.misMatchPercentage) > 0.05){
+					if(Number(data.misMatchPercentage) > mismatchTolerance){
 						render(data);
 					}
 					
 				});
 		}
+	}, {
+		mismatchTolerance: _mismatchTolerance
 	});
 }
 

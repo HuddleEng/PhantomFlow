@@ -1,7 +1,7 @@
 /*
 Author: James Cryer
 Company: Huddle
-Last updated date: 11 Jun 2013
+Last updated date: 26 Feb 2014
 URL: https://github.com/Huddle/PhantomFlow
 */
 
@@ -16,6 +16,8 @@ var hasTest;
 var casperAssert;
 var jsonRoot;
 
+var libraryRoot;
+
 var currentFlowName;
 
 exports.init = init;
@@ -27,24 +29,60 @@ function listen(event, callback){
 	return this;
 }
 
+function patchTester(casper){
+	var patchedTester = require( libraryRoot +'/bootstrap/casperjs-modified-tester.js' );
+
+	casper.__defineGetter__('test', function() {
+	    if (!this._test) {
+	        this._test = patchedTester.create(this);
+	    }
+	    return this._test;
+	});
+
+	casperAssert = casper.test.assert;
+	
+	listen('step.begin', disableAsserts);
+	listen('step.end', enableAsserts);
+}
+
 function init(options){
 	casper = options.casper;
 	jsonRoot = options.dataRoot || './flowData';
 
-	casperAssert = casper.test.assert;
+	libraryRoot = options.libraryRoot || '.';
+
+	patchTester(casper);
 
 	casper.test.on('fail', onCasperFail);
 	casper.test.on('success', onCasperSuccess);
 
 	listen('flow.begin', getCurrentFlowName);
 	listen('flow.end', writeJson);
-	listen('step.begin', disableAsserts);
-	listen('step.end', enableAsserts);
 	listen('uniqueStep.begin', onUniqueStepBegin);
 	listen('uniqueStep.end', onUniqueStepEnd);
 
 	var obj = options.scope || {};
 	return extend( obj );
+}
+
+function fileNameGetter(root, fileName){
+	var file = root + flowPathName;
+
+	screenshotPath = './screenshots/' + flowPathName+'.png';
+
+	if(!fs.isFile(file+'.png')){
+		return file+'.png';
+	} else {
+		return file+'.diff.png';
+	}
+}
+
+function disableScreenshots(){
+	css.screenshot = function(){};
+}
+
+function enableScreenshots(){
+	css.screenshot = css_screenshot;
 }
 
 function updateJsonRoot(root){
@@ -66,7 +104,7 @@ function safe(str){
 	return str.replace(/\/|\<|\>|\?|\:|\*|\||\"/g, '');
 }
 function writeJson(e){
-	fs.write( jsonRoot + '/' + currentFlowName + '.json', JSON.stringify(e.tree) , 'w');
+	fs.write( jsonRoot + '/' + currentFlowName + '.json', JSON.stringify(e.tree, null, 2) , 'w');
 }
 function disableAsserts(){
 	casper.test.assert = function(){};
@@ -154,10 +192,6 @@ function createBranch(object, type){
 	var i;
 	var newStep;
 	var branchedStep = cStep;
-
-	// branchedStep.children = [];
-	// branchedStep.isDecision = type === 'decision',
-	// branchedStep.isChance = type === 'chance';
 
 	for (i in object){
 		if(object.hasOwnProperty(i)){

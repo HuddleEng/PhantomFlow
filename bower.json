@@ -1,12 +1,11 @@
 {
   "name": "phantomflow",
   "version": "0.0.1",
+  "homepage": "https://github.com/Huddle/PhantomFlow",
+  "authors": [
+    "James Cryer <james.cryer@huddle.com>"
+  ],
   "description": "UI testing with PhantomCSS and Decision Trees",
-  "main": "phantomFlow.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Huddle/PhantomFlow.git"
-  },
   "keywords": [
     "decision",
     "casperjs",
@@ -18,10 +17,16 @@
     "bdd",
     "phantomcss"
   ],
-  "author": "James Cryer",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Huddle/PhantomFlow/issues"
-  },
-  "homepage": "https://github.com/Huddle/PhantomFlow"
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "libs",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "phantomcss": "0.3.0"
+  }
 }

@@ -1,19 +1,24 @@
 PhantomFlow
 ===========
 
-**Describe and visualise user flows through tests**. An *experimental* approach to UI testing, based on [Decision Trees](http://en.wikipedia.org/wiki/Decision_tree). Using [PhantomJS](http://github.com/ariya/phantomjs/), [CasperJS](http://github.com/n1k0/casperjs) and [PhantomCSS](http://github.com/Huddle/PhantomCSS), PhantomFlow tries to enable a fluent way of describing user flows in code whilst generating structured tree data for **[visualisation](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport)**.
+**UI testing with decision trees**. An experimental approach to UI testing, based on [Decision Trees](http://en.wikipedia.org/wiki/Decision_tree). Using [PhantomJS](http://github.com/ariya/phantomjs/), [CasperJS](http://github.com/n1k0/casperjs) and [PhantomCSS](http://github.com/Huddle/PhantomCSS), PhantomFlow enables a fluent way of describing user flows in code whilst generating [structured tree data](http://github.com/Huddle/PhantomFlow/tree/master/demo/data/Get a coffee.json) for visualisation.
 
-### Why?
+![PhantomFlow Report: An exmample visualisation](http://huddle.github.com/PhantomFlow/visualisation-example-image.png)
 
-Because user interfaces are complex, and not just UI code, user interactions can create an endless number of testable scenarios despite apparent UI simplicity. Representing such complexity in existing behaviour-driven frameworks can often feel clumsy, hard to interpret, and does not provide a transparent way to communicate UI complexity (and associated costs).
+### Note 
 
-People have been representing complex information in graphs for a long time - so why don't we?
+For now I have removed all code for visualisation.  Visualisation will appear a seperate project in future.
+
+### Aims
+
+* Enable a more expressive way of describing user interaction paths within tests
+* Fluently communicate UI complexity to stakeholders and team members
+* Support TDD and BDD for web applications and components
+* Generation of structured data, for reporting and visualisations
 
 ### Example
 
-![PhantomFlow Report: Visualisation of example test suite](http://huddle.github.com/PhantomFlow/visualisation-example-image.png)
-
-The [demo](http://github.com/Huddle/PhantomFlow/tree/master/demo) describes a fictional Coffee machine application, An example **[PhantomFlow Report](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport)** shows how these tests can be visualised using [d3.js](http://d3js.org/) **(HINT: Hover over the nodes to see screenshots, one test has a failed visual regression test, hover over the node and click to view the original and new screenshots)**.
+The [demo](http://github.com/Huddle/PhantomFlow/tree/master/demo) describes a fictional Coffee machine application.
 
 ```javascript
 
@@ -58,9 +63,7 @@ flow("Get a coffee", function(){
 
 To try out the demo for yourself run from the command line.
 * On Windows `casperjs demo/runTests.js` (Using the bundled .bat file)
-* On OSX `casperjs test demo/runTests.js` (Using your locally installed CasperJS (See [Installing CasperJS from Homebrew](http://docs.casperjs.org/en/latest/installation.html#installing-from-homebrew-osx))
-
-The [visualisation](http://huddle.github.com/PhantomFlow/demo/phantomFlowReport) uses an Ajax request to get it's data, so you'll need to view it with something like [http-server](https://github.com/nodeapps/http-server) for it to work locally.
+* On OSX `casperjs demo/runTests.js` (Using your locally installed CasperJS (See [Installing CasperJS from Homebrew](http://docs.casperjs.org/en/latest/installation.html#installing-from-homebrew-osx))
 
 Below is an example of the required setup code.
 
@@ -90,15 +93,21 @@ phantomFlow.
 
 ```
 
-### How?
-
-PhantomFlow builds up an in memory tree from your tests and then executes each unique path as a series of sequential steps. The tree is augmented with information about test failures and the location of screenshots used for visual regression testing.  The tree is then stringified as JSON and stored in a file which can be read, parsed and visualised at a later point.
-
-By default PhantomFlow will supress Casper asserts on steps that have already been executed.
-
 ### What next?
 
-We've been using this testing style for many months on Huddle's biggest UI application. It's still an evolving idea but for those of us that actively worked on it, it's making a huge difference to the way we think about UI, and how we communicate about UI. It supports TDD well, we use it for UI unit testing but it has great potential for end-to-end as well. I'm working on a grunt plugin for PhantomFlow which will hopefully make setup a little less painful.  I'd also like to do more work around the visualisation.  Of course, this is an Open Source project and it would be great to see more contributions.
+We've been using this testing style for many months on Huddle's biggest UI application. It's still an evolving idea but for those of us that actively worked on it, it's making a huge difference to the way we think about UI, and how we communicate about UI. It supports TDD well, we use it for UI unit testing but it has great potential for end-to-end as well.
+
+I'm working on a grunt plugin for PhantomFlow which will hopefully make setup a little less painful.  I'd also like to do more work around the visualisation.  Of course, this is an Open Source project and it would be great to see more contributions.
+
+### Package management
+
+I'm using [Bower](http://bower.io/) to maintain PhantomFlow's dependency on PhantomCSS. PhantomCSS bundles CasperJs and PhantomJs. I am however keeping PhantomCSS in the repo so that it is easier to get up and running.
+
+PhantomFlow itself can be pulled via npm and bower.
+
+* `npm install phantomflow`
+* `bower install phantomflow`
+* `git clone git://github.com/Huddle/PhantomFlow.git`
 
 --------------------------------------
 

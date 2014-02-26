@@ -16,14 +16,16 @@ var phantomFlow = require('../phantomFlow.js');
 var flowPathName;
 var screenshotPath;
 
-var css = require( '../libs/PhantomCSS/phantomcss.js');
+var css = require( '../libs/phantomcss/phantomcss.js');
 var css_screenshot = css.screenshot;
 
 var url = initPageOnServer(home + 'coffeemachine.html');
 
+console.log(fs.workingDirectory);
+
 css.init({
 	casper: casper,
-	libraryRoot: './libs/PhantomCSS/ResembleJs', // relative to Phantom working Directory
+	libraryRoot: './libs/phantomcss', // relative to Phantom working Directory
 	screenshotRoot: home + 'screenshots/',
 	fileNameGetter: fileNameGetter,
 	addLabelToFailedImage: false
@@ -31,6 +33,9 @@ css.init({
 
 this.css = css;
 
+/*
+	Initialise Flow and patch caspers test library
+*/
 phantomFlow.init({
 	casper: casper,
 	scope: this,
@@ -60,10 +65,8 @@ casper.then(function(){
 
 casper.
 run(function() {
-	console.log('\n');
-	casper.test.done();
 	console.log('\nFini.');
-	casper.test.renderResults(true, 0);
+	phantom.exit(0);
 });
 
 function fileNameGetter(root, fileName){

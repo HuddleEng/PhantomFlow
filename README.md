@@ -7,7 +7,7 @@ PhantomFlow
 
 ### Note 
 
-For now I have removed all code for visualisation.  Visualisation will appear a seperate project in future.
+For now I have removed all code for visualisation.  Visualisation will appear in a seperate project in future.
 
 ### Aims
 
@@ -64,34 +64,6 @@ flow("Get a coffee", function(){
 To try out the demo for yourself run from the command line.
 * On Windows `casperjs demo/runTests.js` (Using the bundled .bat file)
 * On OSX `casperjs demo/runTests.js` (Using your locally installed CasperJS (See [Installing CasperJS from Homebrew](http://docs.casperjs.org/en/latest/installation.html#installing-from-homebrew-osx))
-
-Below is an example of the required setup code.
-
-```javascript
-
-var phantomFlow = require('./phantomFlow.js');
-
-phantomFlow.init({
-	casper: casper, // the instance of Casper
-	
-	scope: this, // Most of the time you want the methods (flow|step|decision|chance) available on the global scope, but you can tack them on to any object
-	
-	dataRoot: '/data' // Where you want your data to go
-});
-
-// Useful events to allow you to create your own reports and augment tree data for visualisation
-
-phantomFlow.
-	listen('flow.begin', function(e){}).
-	listen('flow.end', function(e){}).
-	listen('path.begin', function(e){}).
-	listen('path.end', function(e){}).
-	listen('step.begin', function(e){}).
-	listen('step.end', function(e){}).
-	listen('uniqueStep.begin', function(e){}).
-	listen('uniqueStep.end', function(e){});
-
-```
 
 ### What next?
 

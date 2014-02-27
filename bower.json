@@ -1,6 +1,6 @@
 {
   "name": "phantomflow",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "homepage": "https://github.com/Huddle/PhantomFlow",
   "authors": [
     "James Cryer <james.cryer@huddle.com>"
@@ -27,6 +27,6 @@
     "tests"
   ],
   "dependencies": {
-    "phantomcss": "0.4.2"
+    "phantomcss": "0.4.3"
   }
 }

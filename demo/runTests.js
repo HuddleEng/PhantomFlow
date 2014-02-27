@@ -21,8 +21,6 @@ var css_screenshot = css.screenshot;
 
 var url = initPageOnServer(home + 'coffeemachine.html');
 
-console.log(fs.workingDirectory);
-
 css.init({
 	casper: casper,
 	libraryRoot: './libs/phantomcss', // relative to Phantom working Directory

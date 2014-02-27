@@ -70,7 +70,7 @@ run(function() {
 });
 
 function fileNameGetter(root, fileName){
-	var file = root + flowPathName;
+	var file = root + '/'+ flowPathName;
 
 	screenshotPath = './screenshots/' + flowPathName+'.png';
 

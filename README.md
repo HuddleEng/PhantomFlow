@@ -73,7 +73,7 @@ I'm working on a grunt plugin for PhantomFlow which will hopefully make setup a 
 
 ### Package management
 
-I'm using [Bower](http://bower.io/) to maintain PhantomFlow's dependency on PhantomCSS. PhantomCSS bundles CasperJs and PhantomJs. I am however keeping PhantomCSS in the repo so that it is easier to get up and running.
+I'm using [Bower](http://bower.io/) to maintain PhantomFlow's dependency on PhantomCSS. PhantomCSS bundles CasperJs and PhantomJs. I am however keeping PhantomCSS within the repo so that it is easier to get up and running.
 
 PhantomFlow itself can be pulled via npm and bower.
 

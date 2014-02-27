@@ -27,6 +27,6 @@
     "tests"
   ],
   "dependencies": {
-    "phantomcss": "0.3.0"
+    "phantomcss": "0.4.2"
   }
 }

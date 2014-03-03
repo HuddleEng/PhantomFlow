@@ -1,5 +1,5 @@
 /*!
- * ** This is a modified Tester API for grunt-testflow **
+ * ** This is a modified Tester API for phantomFlow testing **
  * ======================================================
  *
  *
@@ -294,7 +294,7 @@ Tester.prototype.assertTrue = function assert(subject, message, context) {
         standard: "Subject is strictly true",
         message: message,
         file: this.currentTestFile,
-        doThrow: true,
+        doThrow: false,
         values: {
             subject: utils.getPropertyPath(context, 'values.subject') || subject
         }
@@ -1119,6 +1119,7 @@ Tester.prototype.processAssertionError = function(error) {
  */
 Tester.prototype.processAssertionResult = function processAssertionResult(result) {
     "use strict";
+
     if (!this.currentSuite) {
         // this is for BC when begin() didn't exist
         this.currentSuite = new TestCaseResult({

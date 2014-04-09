@@ -1,0 +1,222 @@
+body {
+	background: #222;
+	font-family: sans-serif;
+	font-size: 11px;
+}
+
+.step circle {
+	fill: orange;
+	stroke: grey;
+	stroke-width: 2px;
+}
+.active circle {
+	fill: #338833;
+}
+.chanceRoot circle {
+	fill: #333;
+	stroke: grey;
+	stroke-width: 1px;  
+}
+
+.decisionRoot circle {
+	fill: darkblue;
+	stroke: grey;
+	stroke-width: 1px;  
+}
+
+.decision circle,
+.chance circle {
+	fill: black;
+	stroke: grey;
+	stroke-width: 1px;
+}
+
+
+.familyname {
+	stroke: #ccc;
+	cursor: pointer;
+}
+
+.screenshot circle {
+	stroke: lightgreen;
+	stroke-width: 3px;
+}
+
+.tooltip {
+	background: transparent;
+}
+
+.tooltip div {
+	color: white;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.tooltip img {
+	max-height: 500px;
+}
+
+.link {
+	fill: none;
+	stroke: #ccc;
+	stroke-width: 1.5px;
+}
+
+.text {
+	display: block;
+	stroke: #eee;
+	font-weight: normal;
+	font-size: 12px;
+}
+
+.endtext{
+	text-anchor: start;
+}
+.decisiontext,
+.chancetext {
+	text-anchor: middle;
+	fill: black;
+	stroke: #ccc;
+	stroke-width: 1px;
+	font-size: 11px;
+}
+
+.steptext{
+	text-anchor: end;
+}
+
+select {
+	position:absolute;
+	top: 10px;
+	left: 10px;
+}
+
+.key {
+	height: 100px;
+	width: 200px;
+	position:absolute;
+	top: 60px;
+	left: 10px;
+	color: white;
+	line-height: 8px;
+}
+.key span {
+	display: inline-block;
+	width: 14px;
+	border-radius: 50%;
+	border: 2px solid grey;
+	height: 14px;
+	position: relative;
+	top: 4px;
+}
+
+.key span.unimplemented {
+	background-color: orange;
+}
+.key span.decision {
+	background-color: darkblue;
+}
+.key span.chance {
+	background-color: #333;
+}
+.key span.passed {
+	background-color: #338833;
+}
+.key span.failed {
+	background-color: red;
+}
+.key span.screenshot {
+	border-color: #66dd66;
+	height: 11px;
+	width: 11px;
+	border-width: 4px;
+}
+.key span.failedScreenshot {
+	border-color: red;
+	height: 11px;
+	width: 11px;
+	border-width: 4px;
+}
+
+
+
+
+@-webkit-keyframes blink {
+	0% {
+			fill:red;
+	}
+	50% {
+			fill:darkred;
+	}
+	100% {
+			fill:red;
+	}
+}
+@-moz-keyframes blink {
+	0% {
+			fill:red;
+	}
+	50% {
+			fill:darkred;
+	}
+	100% {
+			fill:red;
+	}
+}
+
+@-webkit-keyframes glow {
+	0% {
+			stroke:red;
+	}
+	50% {
+			stroke:darkred;
+	}
+	100% {
+			stroke:red;
+	}
+}
+@-moz-keyframes glow {
+	0% {
+			stroke:red;
+	}
+	50% {
+			stroke:darkred;
+	}
+	100% {
+			stroke:red;
+	}
+}
+
+.fail circle {
+	transition: all 1s ease-in-out;
+	
+	-webkit-animation-direction: normal;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-name: blink;
+	-webkit-animation-timing-function: ease-in-out;
+	
+	-moz-animation-direction: normal;
+	-moz-animation-duration: 1s;
+	-moz-animation-iteration-count: infinite;
+	-moz-animation-name: blink;
+	-moz-animation-timing-function: ease-in-out;    
+}
+
+.screenshotFail circle {
+	cursor: pointer;
+
+	transition: all 1s ease-in-out;
+
+	-webkit-animation-direction: normal;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-name: glow;
+	-webkit-animation-timing-function: ease-in-out;
+
+	-moz-animation-direction: normal;
+	-moz-animation-duration: 1s;
+	-moz-animation-iteration-count: infinite;
+	-moz-animation-name: glow;
+	-moz-animation-timing-function: ease-in-out; 
+}

@@ -24,7 +24,7 @@
     "url": "https://github.com/Huddle/PhantomFlow/issues"
   },
   "homepage": "https://github.com/Huddle/PhantomFlow",
-  "devDependencies": {
+  "dependencies": {
     "glob": "~3.2.9",
     "wrench": "~1.5.8",
     "datauri": "~0.5.5",
@@ -33,5 +33,6 @@
     "colors": "~0.6.2",
     "lodash": "~2.4.1",
     "phantomcss": "~0.5.0"
-  }
+  },
+  "devDependencies": {}
 }

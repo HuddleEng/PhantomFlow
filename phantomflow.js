@@ -305,9 +305,10 @@ function concatData(dataPath, imagePath, imageResultPath){
 }
 
 function copyReportTemplate(data, dir, templateName){
+
 	templateName = typeof templateName == 'string' ? templateName : 'Dendrogram';
 
-	var templates = path.join(__dirname, '..', 'report_templates');
+	var templates = path.join(__dirname, 'report_templates');
 	var template = path.join(templates, templateName);
 	var datafilename = path.join(dir, 'data.js');
 

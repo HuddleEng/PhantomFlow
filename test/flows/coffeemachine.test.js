@@ -63,7 +63,7 @@
 
 		// See gruntfile for example connect setup
 
-		casper.thenOpen("http://localhost:9001/coffeemachine.html", function(){
+		casper.thenOpen("http://localhost:9001/coffeemachine", function(){
 			phantomCSS.turnOffAnimations();
 		});
 	}

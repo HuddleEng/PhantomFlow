@@ -163,8 +163,6 @@ module.exports.init = function(options) {
 				
 				groupArgs.push('--flowtests='+changeSlashes(files.join(',')));
 
-				console.log(groupArgs);
-
 				child = cp.spawn(
 					changeSlashes(casperPath),
 					groupArgs,

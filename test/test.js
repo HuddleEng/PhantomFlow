@@ -4,7 +4,8 @@ var connect = require('connect');
 
 var flow = require('../phantomflow').init({
 	earlyexit: true,
-	createReport: true
+	createReport: true/*,
+	test: 'coffee'*/
 });
 
 if(process.argv[2] && process.argv[2] == 'report'){
@@ -14,7 +15,7 @@ if(process.argv[2] && process.argv[2] == 'report'){
 } else {
 
 	connect(
-		connect.static(__dirname) // Serve the system under test for this example
+		connect.static(  path.join(__dirname, '..', 'ui_for_tests') ) // Serve the system under test for this example
 	).listen(9001);
 
 	// flow.event.on('exit', function(){

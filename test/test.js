@@ -2,7 +2,7 @@
 var path = require('path');
 var connect = require('connect');
 
-var flow = require('../lib/phantomflow').init({
+var flow = require('../phantomflow').init({
 	earlyexit: true,
 	createReport: true
 });
@@ -10,7 +10,7 @@ var flow = require('../lib/phantomflow').init({
 if(process.argv[2] && process.argv[2] == 'report'){
 
 	flow.report();
-	
+
 } else {
 
 	connect(

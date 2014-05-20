@@ -4,6 +4,7 @@ var connect = require('connect');
 
 var flow = require('../phantomflow').init({
 	earlyexit: true,
+	debug: 2,
 	createReport: true/*,
 	test: 'coffee'*/
 });

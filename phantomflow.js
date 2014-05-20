@@ -27,7 +27,7 @@ module.exports.init = function(options) {
 	var time = Date.now();
 
 	var filterTests = options.test;
-	var optionDebug = options.debug;
+	var optionDebug = parseInt(options.debug, 10) < 3 ? parseInt(options.debug, 10) : void 0;
 
 	var bootstrapPath = path.join(__dirname, 'lib');
 
@@ -138,7 +138,7 @@ module.exports.init = function(options) {
 			args.push('--flowvisualsoutputroot='+ changeSlashes(visualResultsPath) );
 			
 			if(optionDebug !== void 0){
-				args.push('--debug='+optionDebug);
+				args.push('--flowdebug='+optionDebug);
 			}
 			
 			if( optionDebug === 2 ){

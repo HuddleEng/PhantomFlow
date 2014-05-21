@@ -74,7 +74,7 @@
 		casper.waitForSelector(
 			'#myModal:not([style*="display: none"])', 
 			function success(){
-				phantomCSS.screenshot('#myModal');
+				phantomCSS.screenshot('#myModal .modal-content');
 				casper.test.pass('Should see coffee machine');
 			},
 			function timeout(){
@@ -90,7 +90,7 @@
 		casper.waitForSelector(
 			'.alert-danger:not([style*="display: none"])', 
 			function success(){
-				phantomCSS.screenshot('#myModal');
+				phantomCSS.screenshot('#myModal .modal-content');
 				casper.test.pass('Should see no milk warning');
 			},
 			function timeout(){
@@ -106,7 +106,7 @@
 		casper.waitForSelector(
 			'.alert-success:not([style*="display: none"])', 
 			function success(){
-				phantomCSS.screenshot('#myModal');
+				phantomCSS.screenshot('#myModal .modal-content');
 				casper.test.pass('Should get latte');
 			},
 			function timeout(){
@@ -123,7 +123,7 @@
 		casper.waitForSelector(
 			'.alert-danger:not([style*="display: none"])', 
 			function success(){
-				phantomCSS.screenshot('#myModal');
+				phantomCSS.screenshot('#myModal .modal-content');
 				casper.test.pass('Should see no milk warning');
 			},
 			function timeout(){
@@ -139,7 +139,7 @@
 		casper.waitForSelector(
 			'.alert-success:not([style*="display: none"])', 
 			function success(){
-				phantomCSS.screenshot('#myModal');
+				phantomCSS.screenshot('#myModal .modal-content');
 				casper.test.pass('Should get cappuccino');
 			},
 			function timeout(){
@@ -152,7 +152,7 @@
 		casper.waitForSelector(
 			'.alert-danger[style*="display: none"]', 
 			function success(){
-				phantomCSS.screenshot('#myModal');
+				phantomCSS.screenshot('#myModal .modal-content');
 				casper.test.pass('Should see espresso choice');
 			},
 			function timeout(){
@@ -165,7 +165,7 @@
 		casper.waitForSelector(
 			'.alert-success:not([style*="display: none"])', 
 			function success(){
-				phantomCSS.screenshot('#myModal');
+				phantomCSS.screenshot('#myModal .modal-content');
 				casper.test.pass('Should get single shot Espresso');
 			},
 			function timeout(){
@@ -178,7 +178,7 @@
 		casper.waitForSelector(
 			'.alert-success:not([style*="display: none"])', 
 			function success(){
-				phantomCSS.screenshot('#myModal');
+				phantomCSS.screenshot('#myModal .modal-content');
 				casper.test.pass('Should get double shot Espresso');
 			},
 			function timeout(){

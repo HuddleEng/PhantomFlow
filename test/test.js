@@ -4,9 +4,9 @@ var connect = require('connect');
 
 var flow = require('../phantomflow').init({
 	earlyexit: true,
-	debug: 2,
-	createReport: true/*,
-	test: 'coffee'*/
+	//debug: 2,
+	createReport: true,
+	//test: 'coffee'
 });
 
 if(process.argv[2] && process.argv[2] == 'report'){

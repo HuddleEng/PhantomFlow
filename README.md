@@ -1,24 +1,34 @@
 PhantomFlow
 ===========
 
-**UI testing with decision trees**. An experimental approach to UI testing, based on [Decision Trees](http://en.wikipedia.org/wiki/Decision_tree). Using [PhantomJS](http://github.com/ariya/phantomjs/), [CasperJS](http://github.com/n1k0/casperjs) and [PhantomCSS](http://github.com/Huddle/PhantomCSS), PhantomFlow enables a fluent way of describing user flows in code whilst generating [structured tree data](http://github.com/Huddle/PhantomFlow/tree/master/demo/data/Get a coffee.json) for visualisation.
+**UI testing with decision trees**. An experimental approach to UI testing, based on [Decision Trees](http://en.wikipedia.org/wiki/Decision_tree). A NodeJS wrapper for [PhantomJS](http://github.com/ariya/phantomjs/), [CasperJS](http://github.com/n1k0/casperjs) and [PhantomCSS](http://github.com/Huddle/PhantomCSS), PhantomFlow enables a fluent way of describing user flows in code whilst generating [structured tree data](http://github.com/Huddle/PhantomFlow/tree/master/demo/data/Get a coffee.json) for visualisation.
 
-![PhantomFlow Report: An exmample visualisation](http://huddle.github.com/PhantomFlow/visualisation-example-image.png)
-
-### Note 
-
-For now I have removed all code for visualisation.  Visualisation will appear in a seperate project in future.
+![PhantomFlow Report: An example visualisation](http://huddle.github.com/PhantomFlow/visualisation-example-image.png)
 
 ### Aims
 
 * Enable a more expressive way of describing user interaction paths within tests
-* Fluently communicate UI complexity to stakeholders and team members
-* Support TDD and BDD for web applications and components
-* Generation of structured data, for reporting and visualisations
+* Fluently communicate UI complexity to stakeholders and team members through generated visualisations
+* Support TDD and BDD for web applications and responsive web sites
+* Provide a fast feedback loop for UI testing
+* Raise profile of visual regression testing
 
-### Example
+### Install
 
-The [demo](http://github.com/Huddle/PhantomFlow/tree/master/demo) describes a fictional Coffee machine application.
+`npm install phantomflow`
+
+### See also
+
+PhantomFlow also comes as grunt plugin! [grunt-phantomflow](http://github.com/Huddle/grunt-phantomflow)
+
+### Test Example
+
+To try out the demo for yourself run from the command line. `node test/test.js`
+
+After the first test-run, run this to see the visualisation `node test/test.js report`
+
+There are two example test suites, these suites will be executed in parallel, the command line output is a bit muddled as a result. 
+The [demo](http://github.com/Huddle/PhantomFlow/tree/master/test/flows/coffeemachine.test.js) describes a fictional Coffee machine application.
 
 ```javascript
 
@@ -61,25 +71,55 @@ flow("Get a coffee", function(){
 
 ```
 
-To try out the demo for yourself run from the command line.
-* On Windows `casperjs demo/runTests.js` (Using the bundled .bat file)
-* On OSX `casperjs demo/runTests.js` (Using your locally installed CasperJS (See [Installing CasperJS from Homebrew](http://docs.casperjs.org/en/latest/installation.html#installing-from-homebrew-osx))
+### PhantomFlow methods
+
+* flow (string, callback) : initialise a test suite with a name, and a function that contains Steps, Chances and Decisions
+* step (string, callback) : a discrete step, with a name and a callback that can contain a PhantomCSS screenshot as well as CasperJS events and asserts.
+* decision (object) : Defines a user decision.  It takes an object with key value pairs, where the key is the label for a particular decision, and the value is the function to be executed.  The function can contains further decisions, chances and steps
+* change (object) : The same as a decision but offers the semantic representation of a chance event, as opposed to a deliberate possible action by the user
+
+### NodeJS setup example
+
+```javascript
+	var flow = require('../phantomflow').init({
+		// debug: 2
+		// createReport: true,
+		// test: 'coffee'
+	});
+
+	// flow.report(); // Show report
+
+	flow.run(function(){
+		process.exit(0); // callback is executed when PhantomFlow is complete
+	});	
+
+```
+
+### NodeJs Methods
+
+* run (callback) : Runs all the tests.  Takes a callback which is executed when complete
+* report () : Spins up a local connect server and loads a browser window with the visualisation generated on the last test run.
+
+### Options
+
+* test (string) : Test run filtering with a substring match
+* debug (number) : A value of 1 will output more logging, 2 will generate full page screenshots per test
+* createReport (boolean) : Should a report/visualisation be built?
+* includes (string) : Defaults to 'include', it is the root directory of custom global includes (within the PhantomJS domain)
+* tests (string) : Defaults to 'test', it is the root directory of your tests 
+* results (string) : Defaults to 'test-results', it is the root directory of the test results
+* threads (number) : How many processes do you think you can parallelise your tests on.  Defaults to 4.
+* earlyexit (boolean) : False by default, if set to true all tests will abort on the first failure
+* skipVisualTests (boolean) : If set to true the visual comparison step will not be run
+* port (number) : Defaults to 9001, this is the port that will be used to show the report/visualisation
+
+### Parallelisation
+
+Test execution is parallelised for increased speed and a reduced test to dev feedback loop. By default your tests will be divided and run on up to 4 spawned processes.  You can change the default number of threads to any number you think your machine can handle.
 
 ### What next?
 
-We've been using this testing style for many months on Huddle's biggest UI application. It's still an evolving idea but for those of us that actively worked on it, it's making a huge difference to the way we think about UI, and how we communicate about UI. It supports TDD well, we use it for UI unit testing but it has great potential for end-to-end as well.
-
-I'm working on a grunt plugin for PhantomFlow which will hopefully make setup a little less painful.  I'd also like to do more work around the visualisation.  Of course, this is an Open Source project and it would be great to see more contributions.
-
-### Package management
-
-I'm using [Bower](http://bower.io/) to maintain PhantomFlow's dependency on PhantomCSS. PhantomCSS bundles CasperJs and PhantomJs. I am however keeping PhantomCSS within the repo so that it is easier to get up and running.
-
-PhantomFlow itself can be pulled via npm and bower.
-
-* `npm install phantomflow`
-* `bower install phantomflow`
-* `git clone git://github.com/Huddle/PhantomFlow.git`
+We've been using this testing style for many months on Huddle's biggest UI application. It's still an evolving idea but for those of us that actively worked on it, it's making a huge difference to the way we think about UI, and how we communicate about UI. It supports TDD well, we use it for 'unit' testing UI but it has great potential for end-to-end as well. I'd also like to do more work on the visualisations, they look great and are very communicable, but they could be a lot better.  Of course, this is an Open Source project and it would be great to see contributions.
 
 --------------------------------------
 

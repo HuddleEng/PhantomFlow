@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+	<!-- A wonky page example for PhantomFlow example test-->
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Responsive</title>
+		<link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+		<script src="http://code.jquery.com/jquery-git2.min.js"></script>
+		<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<style>
+			h1 {
+				font-size: 120px;
+				text-transform: capitalize;
+				font-family: monospace;
+				text-shadow: 5px 5px blanchedalmond;
+			}
+			body {
+				text-align: center;
+			}
+			.header-row {
+				margin-top: 30px;
+				margin-bottom: 60px;
+			}
+			.face {
+				display: inline-block;
+				width: 180px;
+				height: 180px;
+				border-radius: 50%;
+				background-color: #AAB4FF;
+				font-size: 64px;
+				line-height: 180px;
+				text-align: center;
+				vertical-align: middle;
+				-webkit-transform: rotate(90deg);
+				transform: rotate(90deg);
+				text-shadow: 1px -2px white;
+				margin: 8px;
+			}
+
+			.break {
+				display: inline-block;
+			}
+
+			@media (min-width: 1300px) {
+				.face {
+					line-height: 143px;
+				}
+			}
+
+			@media (max-width: 995px) {
+				h1 {
+					font-size: 12vw;
+				}
+				.break {
+					display: block;
+					width: 100%;
+				}
+				.face {
+					width: 18vw;
+					min-width: 140px;
+					height: 18vw;
+					min-height: 140px;
+					font-size: 64px;
+					line-height: 18vw;
+				}
+			}
+
+			@media (max-width: 490px) {
+				.face {
+					display: block;
+					margin: 0 auto 8px auto;
+					width: 30vw;
+					height: 30vw;
+					line-height: 30vw;
+				}
+			}
+
+
+		</style>
+	</head>
+	<body>
+		<div class="container-fluid">
+			<div class="row header-row">
+				<div class="col-md-12"><h1>Responsive</h1></div>
+			</div>
+
+			<div class="row">
+				<div class="break">
+					<span class="face" style="background-color:#AAB8FF">:)</span>
+					<span class="face" style="background-color:#AAFFB1">:p</span>
+					<span class="face" style="background-color:#FFAAE4">:D</span>
+				</div>
+				<div class="break">
+					<span class="face" style="background-color:#FFCCAA">:&gt;</span>
+					<span class="face" style="background-color:#FFFCAA">:s</span>
+					<span class="face">:@</span>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -3,7 +3,7 @@ var path = require('path');
 var connect = require('connect');
 
 var flow = require('../phantomflow').init({
-	earlyexit: true,
+	//earlyexit: true, // abort as soon as a test fails (also prevents report creation)
 	//debug: 2,
 	createReport: true,
 	//test: 'coffee'

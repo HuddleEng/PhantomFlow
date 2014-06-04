@@ -61,6 +61,11 @@ module.exports.init = function(options) {
 	var reportPath = changeSlashes(results + '/report/');
 	var visualResultsPath = changeSlashes(results + '/visuals/');
 
+	if(earlyExit) {
+		console.log( 'The earlyExit parameter is set to true, PhantomFlow will abort of the first failure. \n'.yellow );
+		console.log( 'If a failure occurs, a report will not be generated. \n'.yellow );
+	}
+
 	return {
 		event: eventEmitter,
 		report: function report(){

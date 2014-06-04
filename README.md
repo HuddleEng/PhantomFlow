@@ -30,15 +30,11 @@ PhantomFlow also comes as grunt plugin! [grunt-phantomflow](http://github.com/Hu
 
 Mac OSX users should be aware that PhantomJS doesn't load the FontAwesome glyths used in the test suite, I don't understand why.  I fixed this locally by downloading FontAwesome and double clicking on the .otf file to install the font.
 
+There are two example test suites, these suites will be executed in parallel, the command line output is a bit muddled as a result.
+
 The D3.js visualisation opens with a combined view which merges the test decision trees. Click on a branch label or use the dropdown to show a specific test. Hover over the nodes to see the PhantomCSS screenshots. If there is a visual test failure the node will glow red, hover and click the node to show the original, latest and generated diff screenshots.
 
 ### Test Example
-
-To try out the demo for yourself run from the command line. `node test/test.js`
-
-After the first test-run, run this to see the visualisation `node test/test.js report`
-
-There are two example test suites, these suites will be executed in parallel, the command line output is a bit muddled as a result.
 
 The [demo](http://github.com/Huddle/PhantomFlow/tree/master/test/flows/coffeemachine.test.js) describes a fictional Coffee machine application.
 

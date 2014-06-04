@@ -189,7 +189,7 @@ module.exports.init = function(options) {
 					threadCompletionCount += 1;
 
 					if(threadCompletionCount === threads){
-						console.log( 'All the threads have completed. \n'.grey );
+						console.log( '\n All the threads have completed. \n'.grey );
 
 						loggedErrors.forEach(function(error){
 							console.log(('== '+error.file).white);
@@ -214,7 +214,7 @@ module.exports.init = function(options) {
 
 						eventEmitter.emit('exit');
 					} else {
-						console.log( 'A thread has completed. \n'.yellow );
+						console.log( '\n A thread has completed. \n'.yellow );
 					}
 				});
 
@@ -244,15 +244,16 @@ module.exports.init = function(options) {
 
 							if(earlyExit === true){
 								writeLog(results, failFileName, stdoutStr);
-
 								eventEmitter.emit('exit');
+
+								child.kill();
 							}
 
 						} else if (/PASS/.test(line)){
 							passCount++;
 							console.log(line.green);
 						} else if (/DEBUG/.test(line)){
-							console.log(line.yellow);
+							console.log(('\n'+line.replace(/DEBUG/,'')+'\n').yellow);
 						} else if(threads === 1){
 							console.log(line.white);
 						}

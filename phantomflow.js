@@ -355,7 +355,9 @@ function dataTransform(key, value, imagePath, imageResultPath){
 
 			return obj;
 		} else {
-			console.log(("Expected file does not exist! "+ value).bold.yellow);
+			if(optionDebug > 0){
+				console.log(("Expected file does not exist! "+ value).grey);
+			}
 			return null;
 		}
 	}

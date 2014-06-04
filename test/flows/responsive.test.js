@@ -28,6 +28,7 @@
 		};
 
 		casper.thenOpen("http://localhost:9001/responsive", function(){
+			casper.test.pass('Responsive page has loaded');
 			phantomCSS.screenshot('body');
 		});
 	}

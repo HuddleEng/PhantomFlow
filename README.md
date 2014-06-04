@@ -22,13 +22,24 @@ PhantomFlow
 
 PhantomFlow also comes as grunt plugin! [grunt-phantomflow](http://github.com/Huddle/grunt-phantomflow)
 
+### Try it!
+
+* `node test/test.js` - First run will create visual test baslines with PhantomCSS
+* `node test/test.js` - Second run will compare baseline visuals with the latest screenshots. This'll pass because there have been no changes.
+* `node test/test.js report` - An optional step to load the Decision tree visualisation into your Web browser
+
+Mac OSX users should be aware that PhantomJS doesn't load the FontAwesome glyths used in the test suite, I don't understand why.  I fixed this locally by downloading FontAwesome and double clicking on the .otf file to install the font.
+
+The D3.js visualisation opens with a combined view which merges the test decision trees. Click on a branch label or use the dropdown to show a specific test. Hover over the nodes to see the PhantomCSS screenshots. If there is a visual test failure the node will glow red, hover and click the node to show the original, latest and generated diff screenshots.
+
 ### Test Example
 
 To try out the demo for yourself run from the command line. `node test/test.js`
 
 After the first test-run, run this to see the visualisation `node test/test.js report`
 
-There are two example test suites, these suites will be executed in parallel, the command line output is a bit muddled as a result. 
+There are two example test suites, these suites will be executed in parallel, the command line output is a bit muddled as a result.
+
 The [demo](http://github.com/Huddle/PhantomFlow/tree/master/test/flows/coffeemachine.test.js) describes a fictional Coffee machine application.
 
 ```javascript
@@ -104,7 +115,7 @@ flow("Get a coffee", function(){
 ### Options
 
 * test (string) : Test run filtering with a substring match
-* debug (number) : A value of 1 will output more logging, 2 will generate full page screenshots per test
+* debug (number) : A value of 1 will output more logging, 2 will generate full page screenshots per test which can be found in the test-results folder
 * createReport (boolean) : Should a report/visualisation be built?
 * includes (string) : Defaults to 'include', it is the root directory of custom global includes (within the PhantomJS domain)
 * tests (string) : Defaults to 'test', it is the root directory of your tests 

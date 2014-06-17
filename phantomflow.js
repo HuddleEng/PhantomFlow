@@ -20,6 +20,8 @@ var cp = require('child_process');
 var wrench = require('wrench');
 var async = require('async');
 
+var optionDebug;
+
 module.exports = {};
 
 module.exports.init = function(options) {
@@ -27,8 +29,7 @@ module.exports.init = function(options) {
 	var time = Date.now();
 
 	var filterTests = options.test;
-	var optionDebug = parseInt(options.debug, 10) < 3 ? parseInt(options.debug, 10) : void 0;
-
+	
 	var bootstrapPath = path.join(__dirname, 'lib');
 
 	var casperPath = getCasperPath();
@@ -60,6 +61,8 @@ module.exports.init = function(options) {
 	var debugPath = changeSlashes(results + '/debug/');
 	var reportPath = changeSlashes(results + '/report/');
 	var visualResultsPath = changeSlashes(results + '/visuals/');
+
+	optionDebug = parseInt(options.debug, 10) < 3 ? parseInt(options.debug, 10) : void 0;
 
 	if(earlyExit) {
 		console.log( 'The earlyExit parameter is set to true, PhantomFlow will abort of the first failure. \n'.yellow );
@@ -165,6 +168,7 @@ module.exports.init = function(options) {
 				var currentTestFile = '';
 				var stdoutStr = '';
 				var failFileName = 'error_'+index+'.log';
+				var hasErrored = false;
 				
 				groupArgs.push('--flowtests='+changeSlashes(files.join(',')));
 
@@ -226,6 +230,10 @@ module.exports.init = function(options) {
 						console.log('Failed to start CasperJS');
 					}
 
+					if(/Error:/.test(bufstr) ){
+						hasErrored = true;
+					}
+
 					bufstr.split(/\n/g).forEach(function(line){
 
 						if (/TESTFILE/.test(line)){
@@ -254,6 +262,14 @@ module.exports.init = function(options) {
 							console.log(line.green);
 						} else if (/DEBUG/.test(line)){
 							console.log(('\n'+line.replace(/DEBUG/,'')+'\n').yellow);
+						} else if(hasErrored){
+							console.log(line.bold.red);
+							if(earlyExit === true){
+								writeLog(results, failFileName, stdoutStr);
+								eventEmitter.emit('exit');
+
+								child.kill();
+							}
 						} else if(threads === 1){
 							console.log(line.white);
 						}

@@ -5,209 +5,197 @@
 
 */
 
-
 function createD3ClusterDendrogram(root, config){
 
-  config = config || {};
+	config = config || {};
 
-  var familyNames = {};
+	var familyNames = {};
 
-  var fileRoot = config.root || '';
+	var fileRoot = config.root || '';
 
-  var radius = $(window).width()/2;
+	var width = $(window).width();
+	var height = $(window).height();
+	var radius = $(window).width()/2;
 
-  var cluster = d3.layout.cluster()
-      .size([360, radius - 120]);
+	var cluster = d3.layout.cluster()
+		.size([360, radius - 240]);
 
-  var diagonal = d3.svg.diagonal.radial()
-      .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
+	var diagonal = d3.svg.diagonal.radial()
+		.projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
 
-  var svg = d3.select("body").append("svg")
-      .attr("width", radius * 2)
-      .attr("height", radius * 2)
-    .append("g")
-      .attr("transform", "translate(" + radius + "," + radius + ")");
+	var x = d3.scale.linear().domain([0, width]).range([width, 0]);
+	var y = d3.scale.linear().domain([0, height]).range([height, 0]);
+	var zoom = d3.behavior.zoom().x(x).y(y)
+		.scaleExtent([0.1, 2.5])
+		.on("zoom", function() {
+			var t = zoom.translate();
+			svg.attr("transform", "translate(" + (t[0]+radius) + "," + (t[1]+radius) + ") scale( " + zoom.scale() + ")");
+		});
 
-  //d3.json("/d/4063550/flare.json", function(error, root) {
-    var nodes = cluster.nodes(root);
+	var svg = d3
+		.select("body")
+		.append("svg")
+		.call(zoom)
+		.attr("width", width)
+		.attr("height", height)
+		.append("g")
+		.attr("transform", "translate(" + radius + "," + radius + ")");
+		
+	var nodes = cluster.nodes(root);
 
-    var link = svg.selectAll("path.link")
-        .data(cluster.links(nodes))
-        .enter().append("path")
-        .attr("class", "link")
-        .attr("d", diagonal);
+	var node = svg.selectAll("g.node")
+		.data(nodes)
+		.enter().append("g")
+		.attr("class", "step")
+		.attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
 
-    svg.selectAll(".link").filter(function(d, i){
-      return !d.target.isDecision && !d.target.isChance && !d.target.name;
-    }).remove();
+	function applyClass(steps, prop, className){
+		steps.filter(function(d, i){
+			return d[prop];
+		}).classed(className,true);
+	}
 
-    var node = svg.selectAll("g.node")
-        .data(nodes)
-        .enter().append("g")
-        .attr("class", "step")
-        .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+	var steps = svg.selectAll(".step");
 
-    svg.selectAll(".step").filter(function(d, i){
-      return !d.isDecision && !d.isChance && !d.name;
-    }).remove();
+	applyClass(steps, 'isDecision', 'decision');
+	applyClass(steps, 'isChanceRoot', 'chanceRoot');
+	applyClass(steps, 'isDecisionRoot', 'decisionRoot');
+	applyClass(steps, 'isChance', 'chance');
+	applyClass(steps, 'isActive', 'active');
+	
+	applyClass(svg.selectAll(".active"), 'isFailed', 'fail');
 
-    svg.selectAll(".step").filter(function(d, i){
-      return d.isDecision;
-    }).attr("class", "decision");
+	node.append("circle")
+		.attr("r", 4);
 
-    svg.selectAll(".step").filter(function(d, i){
-      return d.isChanceRoot;
-    }).attr("class", "chanceRoot");
+	var tooltip = d3.select("body")
+		.append("div")
+		.attr("class", "tooltip")
+		.style("position", "absolute")
+		.style("z-index", "10")
+		.style("visibility", "hidden")
+		.text("");
 
-    svg.selectAll(".step").filter(function(d, i){
-      return d.isDecisionRoot;
-    }).attr("class", "decisionRoot");
+	var tooltipText = tooltip.append("div");
+	var tooltipImg = tooltip.append("img");
 
-    svg.selectAll(".step").filter(function(d, i){
-      return d.isChance;
-    }).attr("class", "chance");
+	steps
+		.filter(function(d, i){
+			var _this = this;
+			var failedScreenshot;
 
-    svg.selectAll(".step").filter(function(d, i){
-      return d.isActive;
-    }).classed('active',true);
+			if(d.screenshot && d.screenshot.original){
 
-    svg.selectAll(".active")
-    .filter(function(d, i){
-      return d.isFailed;
-    })
-    .classed('fail',true);
+				d.originalScreenshot = d.screenshot.original;
 
-    node.append("circle")
-        .attr("r", 4);
+				if(d.screenshot.failure){
+					d.failedScreenshot = d.screenshot.failure;
+					d.latestScreenshot = d.screenshot.latest;
+					_this.setAttribute("class", _this.className.baseVal + ' screenshotFail');
+				}
+			}
+			return !!d.screenshot;
+		})
+		.classed('screenshot',true)
+		.on("mouseover", function(e){
+			if( tooltip.style("visibility") === "hidden" ){
+				if(e.failedScreenshot){
+					tooltipText.text('Failed diff image.');
+					tooltipImg.attr("src", e.failedScreenshot);
+				} else {
+					tooltipText.text('Original/good image');
+					tooltipImg.attr("src", e.originalScreenshot);
+				}
+			}
+			return tooltip.style("visibility", "visible");
+		})
+		.on("mousemove", function(){
 
-    var tooltip = d3.select("body")
-      .append("div")
-      .attr("class", "tooltip")
-      .style("position", "absolute")
-      .style("z-index", "10")
-      .style("visibility", "hidden")
-      .text("");
+			var width = Number(tooltip.style("width").replace('px', ''));
+			var height = Number(tooltip.style("height").replace('px', ''));
+			var right = d3.event.pageX + 10 + width;
+			var top = d3.event.pageY-10 + height;
 
-    var tooltipText = tooltip.append("div");
-    var tooltipImg = tooltip.append("img");
+			if(right > document.body.clientWidth){
+				right = d3.event.pageX-10 - width;
+			} else {
+				right = d3.event.pageX+10;
+			}
 
-    svg.selectAll(".step")
-      .filter(function(d, i){
-        var _this = this;
-        var failedScreenshot;
+			if( top > document.body.clientHeight){
+				top = d3.event.pageY-10 - height;
+			} else {
+				top = d3.event.pageY-10;
+			}
 
-        if(d.screenshot && d.screenshot.original){
+			return tooltip.style("top", top +"px").style("left", right+"px");
 
-          d.originalScreenshot = d.screenshot.original;
+		})
+		.on("mouseout", function(){
+			return tooltip.style("visibility", "hidden");
+		})
+		.on("click", function(e){
+			if( !e.failedScreenshot ){
+				return;
+			}
 
-          if(d.screenshot.failure){
-            d.failedScreenshot = d.screenshot.failure;
-            d.latestScreenshot = d.screenshot.latest;
-            _this.setAttribute("class", _this.className.baseVal + ' screenshotFail');
-          }
+			if( tooltipImg.attr("src") === e.failedScreenshot ){
+				tooltipText.text('Original/good image');
+				tooltipImg.attr("src", e.originalScreenshot);
 
-        }
-      return !!d.screenshot;
-      })
-      .classed('screenshot',true)
-      .on("mouseover", function(e){
-        if( tooltip.style("visibility") === "hidden" ){
-          if(e.failedScreenshot){
-            tooltipText.text('Failed diff image.');
-            tooltipImg.attr("src", e.failedScreenshot);
-          } else {
-            tooltipText.text('Original/good image');
-            tooltipImg.attr("src", e.originalScreenshot);
-          }
-        }
-        return tooltip.style("visibility", "visible");
-      })
-      .on("mousemove", function(){
+			} else if ( tooltipImg.attr("src") === e.originalScreenshot ){
+				tooltipText.text('Latest/bad image');
+				tooltipImg.attr("src", e.latestScreenshot);
 
-        var width = Number(tooltip.style("width").replace('px', ''));
-        var height = Number(tooltip.style("height").replace('px', ''));
-        var right = d3.event.pageX + 10 + width;
-        var top = d3.event.pageY-10 + height;
+			} else {
+				tooltipText.text('Failed diff image.');
+				tooltipImg.attr("src", e.failedScreenshot);
+			}
+		});
 
-        if(right > document.body.clientWidth){
-          right = d3.event.pageX-10 - width;
-        } else {
-          right = d3.event.pageX+10;
-        }
+	steps
+		.filter(function(d, i){
+			return !d.children;
+		})
+		.append("text")
+		.attr("dy", ".31em")
+		.attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+		.attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
+		.text(function(d) { 
+			var name;
+			var o = d;
 
-        if( top > document.body.clientHeight){
-          top = d3.event.pageY-10 - height;
-        } else {
-          top = d3.event.pageY-10;
-        }
+			while (d.parent){
+				name = d.name;
+				d = d.parent;
+			}
 
-        return tooltip.style("top", top +"px").style("left", right+"px");
+			o.familyName = name || d.name;
 
-      })
-      .on("mouseout", function(){
-        return tooltip.style("visibility", "hidden");
-      })
-      .on("click", function(e){
+			if( !familyNames[o.familyName] ){
+				familyNames[o.familyName] = get_random_color();
+			}
 
-        if( !e.failedScreenshot ){
-          return;
-        }
+			d3.select(this).attr("class", "familyname");
+			d3.select(this).style("stroke", familyNames[o.familyName]);
 
-        if( tooltipImg.attr("src") === e.failedScreenshot ){
-          tooltipText.text('Original/good image');
-          tooltipImg.attr("src", e.originalScreenshot);
+			return o.familyName;
+		})
+		.on("click", function(e){
+			window.location.hash = e.familyName;
+		});
+	
+	d3.select(self.frameElement).style("height", radius * 2 + "px");
 
-        } else if ( tooltipImg.attr("src") === e.originalScreenshot ){
-          tooltipText.text('Latest/bad image');
-          tooltipImg.attr("src", e.latestScreenshot);
-
-        } else {
-          tooltipText.text('Failed diff image.');
-          tooltipImg.attr("src", e.failedScreenshot);
-        }
-      });
-
-
-    svg.selectAll(".step").filter(function(d, i){
-      return !d.children;
-    }).append("text")
-      .attr("dy", ".31em")
-      .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-      .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
-      .text(function(d) { 
-        var name;
-        var o = d;
-
-        while (d.parent){
-          name = d.name;
-          d = d.parent;
-        }
-
-        o.familyName = name || d.name;
-
-        if( !familyNames[o.familyName] ){
-         familyNames[o.familyName] = get_random_color();
-        }
-
-        d3.select(this).attr("class", "familyname");
-        d3.select(this).style("stroke", familyNames[o.familyName]);
-
-        return o.familyName;
-      })
-      .on("click", function(e){
-        console.log();
-        window.location.hash = e.familyName;
-      });
-  
-
-  d3.select(self.frameElement).style("height", radius * 2 + "px");
-
+	// later on
+	zoom.scale(1);
+	zoom.event(svg);
 
 }
 
 function get_random_color() {
-  function c() {
-    return Math.floor((Math.random()*128) + 128).toString(16);
-  }
-  return "#"+c()+c()+c();
+	function c() {
+	return Math.floor((Math.random()*128) + 128).toString(16);
+	}
+	return "#"+c()+c()+c();
 }

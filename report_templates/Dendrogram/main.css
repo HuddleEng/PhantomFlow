@@ -74,10 +74,37 @@ select {
 	max-height: 500px;
 }
 
+
+.tooltip-label {
+	background: white;
+	padding: 8px;
+	border-radius: 3px; 
+	margin-top: -12px;
+}
+
+.tooltip-label div {
+	color: black;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.arc {
+	cursor: pointer;
+}
+.arc:hover{
+	stroke: white;
+}
+
 .link {
 	fill: none;
 	stroke: #ccc;
 	stroke-width: 1.5px;
+}
+
+.link-subtle {
+	fill: none;
+	stroke: #555;
+	stroke-width: 1px;
 }
 
 .text {

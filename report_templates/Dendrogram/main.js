@@ -44,7 +44,7 @@
 		var combined;
 		var promises = [];
 
-		$('svg,.tooltip').remove();
+		$('svg,.tooltip,.tooltip-label').remove();
 
 		if(hash && hash.indexOf('?') !== -1){
 

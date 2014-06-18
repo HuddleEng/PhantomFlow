@@ -25,11 +25,14 @@ function createD3ClusterDendrogram(root, config){
 
 	var x = d3.scale.linear().domain([0, width]).range([width, 0]);
 	var y = d3.scale.linear().domain([0, height]).range([height, 0]);
+	
+	var currentScale = 1;
+
 	var zoom = d3.behavior.zoom().x(x).y(y)
 		.scaleExtent([0.1, 2.5])
-		.on("zoom", function() {
+		.on("zoom", function(a, b, c) {
 			var t = zoom.translate();
-			svg.attr("transform", "translate(" + (t[0]+radius) + "," + (t[1]+radius) + ") scale( " + zoom.scale() + ")");
+			svg.attr("transform", "translate(" + (t[0]) + "," + (t[1]) + ") scale( " + zoom.scale() + ")");
 		});
 
 	var svg = d3
@@ -38,22 +41,22 @@ function createD3ClusterDendrogram(root, config){
 		.call(zoom)
 		.attr("width", width)
 		.attr("height", height)
-		.append("g")
-		.attr("transform", "translate(" + radius + "," + radius + ")");
+		.append("g");
 		
 	var nodes = cluster.nodes(root);
+
+    var link = svg.selectAll("path.link")
+        .data(cluster.links(nodes))
+        .enter()
+        .append("path")
+        .attr("class", "link-subtle")
+        .attr("d", diagonal);
 
 	var node = svg.selectAll("g.node")
 		.data(nodes)
 		.enter().append("g")
 		.attr("class", "step")
 		.attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
-
-	function applyClass(steps, prop, className){
-		steps.filter(function(d, i){
-			return d[prop];
-		}).classed(className,true);
-	}
 
 	var steps = svg.selectAll(".step");
 
@@ -110,26 +113,7 @@ function createD3ClusterDendrogram(root, config){
 			return tooltip.style("visibility", "visible");
 		})
 		.on("mousemove", function(){
-
-			var width = Number(tooltip.style("width").replace('px', ''));
-			var height = Number(tooltip.style("height").replace('px', ''));
-			var right = d3.event.pageX + 10 + width;
-			var top = d3.event.pageY-10 + height;
-
-			if(right > document.body.clientWidth){
-				right = d3.event.pageX-10 - width;
-			} else {
-				right = d3.event.pageX+10;
-			}
-
-			if( top > document.body.clientHeight){
-				top = d3.event.pageY-10 - height;
-			} else {
-				top = d3.event.pageY-10;
-			}
-
-			return tooltip.style("top", top +"px").style("left", right+"px");
-
+			return mousemove(tooltip);
 		})
 		.on("mouseout", function(){
 			return tooltip.style("visibility", "hidden");
@@ -153,42 +137,12 @@ function createD3ClusterDendrogram(root, config){
 			}
 		});
 
-	steps
-		.filter(function(d, i){
-			return !d.children;
-		})
-		.append("text")
-		.attr("dy", ".31em")
-		.attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-		.attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
-		.text(function(d) { 
-			var name;
-			var o = d;
-
-			while (d.parent){
-				name = d.name;
-				d = d.parent;
-			}
-
-			o.familyName = name || d.name;
-
-			if( !familyNames[o.familyName] ){
-				familyNames[o.familyName] = get_random_color();
-			}
-
-			d3.select(this).attr("class", "familyname");
-			d3.select(this).style("stroke", familyNames[o.familyName]);
-
-			return o.familyName;
-		})
-		.on("click", function(e){
-			window.location.hash = e.familyName;
-		});
-	
 	d3.select(self.frameElement).style("height", radius * 2 + "px");
 
-	// later on
+	pie( width, height, svg, getLeafInfo(root) );
+
 	zoom.scale(1);
+	zoom.translate([width/2, height/2]);
 	zoom.event(svg);
 
 }
@@ -198,4 +152,115 @@ function get_random_color() {
 	return Math.floor((Math.random()*128) + 128).toString(16);
 	}
 	return "#"+c()+c()+c();
+}
+
+function pie(w,h,svg,data){
+
+	var radius = Math.min(w, h) / 2 + 40;
+
+	var color = d3.scale.ordinal()
+		.range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+	var arc = d3.svg.arc()
+		.outerRadius(radius - 10)
+		.innerRadius(radius - 70);
+
+	var pie = d3.layout.pie()
+		.sort(null)
+		.value(function(d) { return d.leafs; });
+
+	var g = svg.selectAll(".arc")
+		.data(pie(data))
+		.enter()
+		.append("g")
+		.attr("class", "arc");
+
+	g.append("path")
+		.attr("d", arc)
+		.style("fill", function(d) { return color(d.data.name); });
+
+	var tooltip = d3.select("body")
+		.append("div")
+		.attr("class", "tooltip-label")
+		.style("position", "absolute")
+		.style("z-index", "10")
+		.style("visibility", "hidden")
+		.text("");
+
+	var tooltipText = tooltip.append("div");
+
+	g.on("mouseover", function(e){
+		if( tooltip.style("visibility") === "hidden" ){
+			tooltipText.text(e.data.name.replace('.json', ''));
+		}
+		return tooltip.style("visibility", "visible");
+	})
+	.on("mousemove", function(){
+		return mousemove(tooltip);
+	})
+	.on("mouseout", function(){
+		return tooltip.style("visibility", "hidden");
+	})
+	.on("click", function(e){
+		window.location.hash = e.data.name;
+	});
+
+}
+
+function mousemove(tooltip){
+	var width = Number(tooltip.style("width").replace('px', ''));
+	var height = Number(tooltip.style("height").replace('px', ''));
+	var right = d3.event.pageX + 10 + width;
+	var top = d3.event.pageY-10 + height;
+
+	if(right > document.body.clientWidth){
+		right = d3.event.pageX-10 - width;
+	} else {
+		right = d3.event.pageX+10;
+	}
+
+	if( top > document.body.clientHeight){
+		top = d3.event.pageY-10 - height;
+	} else {
+		top = d3.event.pageY-10;
+	}
+	return tooltip.style("top", top +"px").style("left", right+"px");
+}
+
+function getLeafInfo(obj){
+	var roots = [];
+
+	function recurse(obj, root, isRoot){
+		var newRootRef;
+		var i;
+		var len;
+
+		if(obj.children){
+			i=0;
+			len = obj.children.length;
+			for (;i<len;i++){
+				if(isRoot){
+					newRootRef = {
+						name: obj.children[i].name,
+						leafs: 0,
+						deep: 0
+					};
+					roots.push(newRootRef);
+				}
+				recurse(obj.children[i], newRootRef || root, false);
+			}
+		} else {
+			root.leafs += 1;
+		}
+	}
+
+	recurse(obj, {}, true);
+
+	return roots;
+}
+
+function applyClass(steps, prop, className){
+	steps.filter(function(d, i){
+		return d[prop];
+	}).classed(className,true);
 }

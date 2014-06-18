@@ -178,5 +178,5 @@ function createD3Tree(root, config){
 		.attr("dy", function(d) { return d.isBranchRoot ? 22 : d.children ? dy  : dy ; })
 		.attr("class", function(d) { return d.isDecisionRoot ? 'text decisiontext' : d.isChanceRoot ? 'text chancetext' : d.children ? 'text steptext' : 'text endtext'; })
 		.attr("transform",  function(d) { return (d.children && !d.isBranchRoot) ? "rotate(330)" : "rotate(0)"; })
-		.text(function(d) { return d.name; });
+		.text(function(d) { return d.name.replace('.json', ''); });
 }

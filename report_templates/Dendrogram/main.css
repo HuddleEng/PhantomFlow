@@ -93,6 +93,7 @@ select {
 }
 .arc:hover{
 	stroke: white;
+	stroke-width: 2px;
 }
 
 .link {

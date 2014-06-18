@@ -24,18 +24,30 @@ function createD3Tree(root, config){
 	var fileRoot = config.root || '';
 
 	var width = $(window).width();
-	var height = config.isComplex ? 5000 : 1000;
+	var height = $(window).height();
 	var cluster = d3.layout.cluster().size([height , width - 220]);
 	var diagonal = d3.svg.diagonal().projection(function(d) { return [d.y, d.x]; });
 
 	var nodes = cluster.nodes(root);
 	var links = cluster.links(nodes);
 
-	var svg = d3.select("body").append("svg")
+	var x = d3.scale.linear().domain([0, width]).range([width, 0]);
+	var y = d3.scale.linear().domain([0, height]).range([height, 0]);
+	
+	var zoom = d3.behavior.zoom().x(x).y(y)
+		.scaleExtent([0.1, 2.5])
+		.on("zoom", function(a, b, c) {
+			var t = zoom.translate();
+			svg.attr("transform", "translate(" + (t[0]) + "," + (t[1]) + ") scale( " + zoom.scale() + ")");
+		});
+
+	var svg = d3
+		.select("body")
+		.append("svg")
+		.call(zoom)
 		.attr("width", width)
 		.attr("height", height)
-		.append("g")
-		.attr("transform", "translate(100,-10)");
+		.append("g");
 
 	d3.select(self.frameElement).style("height", height + "px");
 
@@ -179,4 +191,8 @@ function createD3Tree(root, config){
 		.attr("class", function(d) { return d.isDecisionRoot ? 'text decisiontext' : d.isChanceRoot ? 'text chancetext' : d.children ? 'text steptext' : 'text endtext'; })
 		.attr("transform",  function(d) { return (d.children && !d.isBranchRoot) ? "rotate(330)" : "rotate(0)"; })
 		.text(function(d) { return d.name.replace('.json', ''); });
+
+	zoom.scale(1);
+	zoom.translate([50, 50]);
+	zoom.event(svg);
 }

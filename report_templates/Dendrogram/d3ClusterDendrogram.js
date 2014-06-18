@@ -26,8 +26,6 @@ function createD3ClusterDendrogram(root, config){
 	var x = d3.scale.linear().domain([0, width]).range([width, 0]);
 	var y = d3.scale.linear().domain([0, height]).range([height, 0]);
 	
-	var currentScale = 1;
-
 	var zoom = d3.behavior.zoom().x(x).y(y)
 		.scaleExtent([0.1, 2.5])
 		.on("zoom", function(a, b, c) {

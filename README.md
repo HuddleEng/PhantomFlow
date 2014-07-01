@@ -94,7 +94,7 @@ Deciding how to visualise this data is the hard part.  It has to be readable and
 * flow (string, callback) : initialise a test suite with a name, and a function that contains Steps, Chances and Decisions
 * step (string, callback) : a discrete step, with a name and a callback that can contain a PhantomCSS screenshot as well as CasperJS events and asserts.
 * decision (object) : Defines a user decision.  It takes an object with key value pairs, where the key is the label for a particular decision, and the value is the function to be executed.  The function can contains further decisions, chances and steps
-* change (object) : The same as a decision but offers the semantic representation of a chance event, as opposed to a deliberate possible action by the user
+* chance (object) : The same as a decision but offers the semantic representation of a chance event, as opposed to a deliberate possible action by the user
 
 ### NodeJS setup example
 

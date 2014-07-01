@@ -309,7 +309,7 @@ function concatData(dataPath, imagePath, imageResultPath){
 	glob.sync(dataPath+'/**/*.json').forEach(
 		function(file){
 			var json = readJSON(file);
-			var filename = file.replace(dataPath, '');
+			var filename = file.replace(dataPath, '').replace('.json', '');
 
 			if(data[filename] && data[filename].children && json && json.children){
 				data[filename].children = data[filename].children.concat(json.children);

@@ -88,13 +88,19 @@ select {
 	font-size: 12px;
 }
 
-.arc {
+.root-pie {
 	cursor: pointer;
 }
-.arc:hover{
+.root-pie:hover{
 	stroke: white;
 	stroke-width: 2px;
 }
+
+.group-pie {
+	stroke-width: 8px;
+	stroke: #222;
+}
+
 
 .link {
 	fill: none;

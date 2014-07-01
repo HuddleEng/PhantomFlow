@@ -15,10 +15,10 @@ function createD3ClusterDendrogram(root, config){
 
 	var width = $(window).width();
 	var height = $(window).height();
-	var radius = $(window).width()/2;
+	var radius = Math.min(width, height)/1.8;
 
 	var cluster = d3.layout.cluster()
-		.size([360, radius - 240]);
+		.size([360, radius]);
 
 	var diagonal = d3.svg.diagonal.radial()
 		.projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
@@ -135,14 +135,44 @@ function createD3ClusterDendrogram(root, config){
 			}
 		});
 
-	d3.select(self.frameElement).style("height", radius * 2 + "px");
+	//d3.select(self.frameElement).style("height", diameter + "px");
 
-	pie( width, height, svg, getLeafInfo(root) );
+	var rootTests = getLeafInfo(root);
+	var groups = getGroupInfo(rootTests);
+	
+	groupPie( radius, svg, groups );
+	
+	rootPie( radius, svg, rootTests );
 
-	zoom.scale(1);
+	zoom.scale(.75);
 	zoom.translate([width/2, height/2]);
 	zoom.event(svg);
 
+}
+
+function getGroupInfo(array){
+	var key;
+	var tots = {};
+	var newArray = [];
+
+	array.forEach(function(item){
+		var stem = item.name.split(/\/|\\/).shift();
+
+		if(tots[stem] != void 0){
+			tots[stem] += item.value;
+		} else {
+			tots[stem]=0;
+		}
+	});
+
+	for (key in tots){
+		newArray.push({
+			value: tots[key],
+			name: key
+		});
+	}
+
+	return newArray;
 }
 
 function get_random_color() {
@@ -152,22 +182,59 @@ function get_random_color() {
 	return "#"+c()+c()+c();
 }
 
-function pie(w,h,svg,data){
+function groupPie(radius,svg,data){
+	var color = d3.scale.ordinal()
+		.range([
+			"#9696BF",
+			"#64647F",
+			"#C8C7FF",
+			"#525260",
+			"#B4B3E5",
+			"#82A5BF",
+			"#576E7F",
+			"#AEDDFF",
+			"#3B4750",
+			"#9CC7E5"]);
 
-	var radius = Math.min(w, h) / 2 + 40;
+	var g = pie('group-pie', radius, 46, color, svg, data);
+
+	pieTooltip(g);
+}
+
+function rootPie(radius,svg,data){
 
 	var color = d3.scale.ordinal()
-		.range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+		.range([
+			"#9696BF",
+			"#64647F",
+			"#C8C7FF",
+			"#525260",
+			"#B4B3E5",
+			"#82A5BF",
+			"#576E7F",
+			"#AEDDFF",
+			"#3B4750",
+			"#9CC7E5"]);
 
+	var g = pie('root-pie', radius, 8, color, svg, data);
+
+	pieTooltip(g);
+
+	g.on("click", function(e){
+		window.location.hash = e.data.name;
+	});
+}
+
+function pie(name, radius, offset, color, svg, data){
 	var arc = d3.svg.arc()
-		.outerRadius(radius - 10)
-		.innerRadius(radius - 70);
+		.outerRadius(radius + offset + 40)
+		.innerRadius(radius + offset + 8 );
 
 	var pie = d3.layout.pie()
 		.sort(null)
-		.value(function(d) { return d.leafs; });
+		.value(function(d) { return d.value; });
 
-	var g = svg.selectAll(".arc")
+	var g = svg.selectAll(".arc"+name)
 		.data(pie(data))
 		.enter()
 		.append("g")
@@ -177,6 +244,12 @@ function pie(w,h,svg,data){
 		.attr("d", arc)
 		.style("fill", function(d) { return color(d.data.name); });
 
+	g.classed(name,true);
+
+	return g;
+}
+
+function pieTooltip(g){
 	var tooltip = d3.select("body")
 		.append("div")
 		.attr("class", "tooltip-label")
@@ -198,12 +271,9 @@ function pie(w,h,svg,data){
 	})
 	.on("mouseout", function(){
 		return tooltip.style("visibility", "hidden");
-	})
-	.on("click", function(e){
-		window.location.hash = e.data.name;
 	});
-
 }
+
 
 function mousemove(tooltip){
 	var width = Number(tooltip.style("width").replace('px', ''));
@@ -240,7 +310,7 @@ function getLeafInfo(obj){
 				if(isRoot){
 					newRootRef = {
 						name: obj.children[i].name,
-						leafs: 0,
+						value: 0,
 						deep: 0
 					};
 					roots.push(newRootRef);
@@ -248,7 +318,7 @@ function getLeafInfo(obj){
 				recurse(obj.children[i], newRootRef || root, false);
 			}
 		} else {
-			root.leafs += 1;
+			root.value += 1;
 		}
 	}
 

@@ -299,14 +299,15 @@ module.exports.init = function(options) {
 					console.log("Remote debugging is enabled.  Web Inspector interface will show shortly.".bold.green);
 					console.log("Please use ctrl+c to escape\n".bold.green);
 					console.log("https://github.com/ariya/phantomjs/wiki/Troubleshooting#remote-debugging\n".underline.bold.grey);
-					
+
 					if(!remoteDebugAutoStart){
 						console.log("Click 'about:blank' to see the PhantomJS Inspector.");
 						console.log("To start, enter the '__run()' command in the Web Inspector Console.\n");
 					}
 
 					setTimeout(function(){
-						open('http://localhost:'+remoteDebugPort);
+						//console.log(("If Safari or Chrome is not your default browser, please open http://localhost:"+remoteDebugPort+" in a compatible browser.\n").bold.yellow);
+						open('http://localhost:'+remoteDebugPort, "chrome");
 					},3000);
 				}
 			});

@@ -120,20 +120,51 @@ Deciding how to visualise this data is the hard part.  It has to be readable and
 
 ### Options
 
-* test (string) : Test run filtering with a substring match
-* debug (number) : A value of 1 will output more logging, 2 will generate full page screenshots per test which can be found in the test-results folder
 * createReport (boolean) : Should a report/visualisation be built?
-* includes (string) : Defaults to 'include', it is the root directory of custom global includes (within the PhantomJS domain)
-* tests (string) : Defaults to 'test', it is the root directory of your tests 
-* results (string) : Defaults to 'test-results', it is the root directory of the test results
-* threads (number) : How many processes do you think you can parallelise your tests on.  Defaults to 4.
+* debug (number) : A value of 1 will output more logging, 2 will generate full page screenshots per test which can be found in the test-results folder.  Forces tests onto one thread for readability.
 * earlyexit (boolean) : False by default, if set to true all tests will abort on the first failure
-* skipVisualTests (boolean) : If set to true the visual comparison step will not be run
+* includes (string) : Defaults to 'include', it is the root directory of custom global includes (within the PhantomJS domain)
 * port (number) : Defaults to 9001, this is the port that will be used to show the report/visualisation
+* results (string) : Defaults to 'test-results', it is the root directory of the test results
+* remoteDebug (boolean) : Enable PhantomJS remote debugging
+* remoteDebugAutoStart (boolean) : Enable autostart for PhantomJS remote debugging
+* remoteDebugPort (number) : Defaults to 9000, the port on which Web Inspector will run
+* skipVisualTests (boolean) : If set to true the visual comparison step will not be run
+* test (string) : Test run filtering with a substring match
+* tests (string) : Defaults to 'test', it is the root directory of your tests 
+* threads (number) : How many processes do you think you can parallelise your tests on.  Defaults to 4.
 
 ### Parallelisation
 
 Test execution is parallelised for increased speed and a reduced test to dev feedback loop. By default your tests will be divided and run on up to 4 spawned processes.  You can change the default number of threads to any number you think your machine can handle.
+
+### Debugging
+
+Debugging is often a painful part of writing test with PhantomJS.  If you're experiencing trouble try the following.
+
+* Enable debug mode 1, to show more logging.  This will also prevent parallelisation - better for readability, but slower.
+```javascript
+	var flow = require('../phantomflow').init({
+		debug: 1
+	});
+```
+
+* Enable debug mode 2, same as mode 1 but will also generate full-page screenshots per step, to allow to see what's actualy going on.
+```javascript
+	var flow = require('../phantomflow').init({
+		debug: 2
+	});
+```
+
+* PhantomJS provides [remote debugging](https://github.com/ariya/phantomjs/wiki/Troubleshooting#remote-debugging) functionality.  This setting allows you to use the debugger; statement and add breakpoints with the [Web Inspector interface](https://www.webkit.org/blog/1620/webkit-remote-debugging/).  Remote debugging can be use in conjunction with the debug modes described above.
+
+```javascript
+	var flow = require('../phantomflow').init({
+		remoteDebug: true
+		// remoteDebugAutoStart: false
+		// remoteDebugPort: 9000
+	});
+```
 
 ### What next?
 

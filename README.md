@@ -140,7 +140,7 @@ Test execution is parallelised for increased speed and a reduced test to dev fee
 
 ### Debugging
 
-Debugging is often a painful part of writing test with PhantomJS.  If you're experiencing trouble try the following.
+Debugging is often a painful part of writing tests with PhantomJS.  If you're experiencing trouble try the following.
 
 * Enable debug mode 1, to show more logging.  This will also prevent parallelisation - better for readability, but slower.
 ```javascript

@@ -39,6 +39,10 @@ module.exports.init = function(options) {
 	var includes = path.resolve(options.includes || 'include');
 	var tests = path.resolve(options.tests || 'test') + '/';
 	var results = path.resolve(options.results || 'test-results');
+
+	var remoteDebug = options.remoteDebug || false;
+	var remoteDebugAutoStart = options.remoteDebugAutoStart || false;
+	var remoteDebugPort = options.remoteDebugPort || 9000;
 	
 	var threads = options.threads || 4;
 	
@@ -126,10 +130,23 @@ module.exports.init = function(options) {
 				threads = files.length;
 			}
 
+			if(optionDebug > 0 || remoteDebug){
+				threads = 1;
+			}
+
 			/*
 				Group the files for thread parallelization
 			*/
 			fileGroups = _.groupBy(files, function(val, index){ return index % threads; });
+
+			/*
+				Enable https://github.com/ariya/phantomjs/wiki/Troubleshooting#remote-debugging
+			*/
+			if(remoteDebug){
+				args.push(
+					'--remote-debugger-port='+remoteDebugPort+
+					(remoteDebugAutoStart ? ' --remote-debugger-autorun=yes' : ''));
+			}
 
 			/*
 				Setup arguments to be sent into PhantomJS
@@ -177,7 +194,7 @@ module.exports.init = function(options) {
 					groupArgs,
 					{ stdio: false }
 				);
-					
+				
 				child.on('close', function(code) {
 
 					var mergedData;
@@ -277,12 +294,27 @@ module.exports.init = function(options) {
 						stdoutStr += line;
 					});
 				});
+
+				if(remoteDebug){
+					console.log("Remote debugging is enabled.  Web Inspector interface will show shortly.".bold.green);
+					console.log("Please use ctrl+c to escape\n".bold.green);
+					console.log("https://github.com/ariya/phantomjs/wiki/Troubleshooting#remote-debugging\n".underline.bold.grey);
+					
+					if(!remoteDebugAutoStart){
+						console.log("Click 'about:blank' to see the PhantomJS Inspector.");
+						console.log("To start, enter the '__run()' command in the Web Inspector Console.\n");
+					}
+
+					setTimeout(function(){
+						open('http://localhost:'+remoteDebugPort);
+					},3000);
+				}
 			});
 
 			eventEmitter.on('exit', function(){
 				isFinished = true;
 			});
-
+			
 			async.until(
 				function(){
 					return isFinished;
@@ -296,6 +328,7 @@ module.exports.init = function(options) {
 					}
 				}
 			);
+
 		}
 	};
 };

@@ -5,6 +5,7 @@ var connect = require('connect');
 var showReport;
 var filterTest;
 var debugMode;
+var remoteDebug;
 
 process.argv.forEach(function(arg, i){
 	if(arg === 'report'){
@@ -12,6 +13,9 @@ process.argv.forEach(function(arg, i){
 	}
 	if(/^debug/.test(arg)){
 		debugMode = true;
+	}
+	if(/^remoteDebug/.test(arg)){
+		remoteDebug = true;
 	}
 	if(/^test=/.test(arg)){
 		filterTest = arg.split('=')[1];
@@ -22,7 +26,8 @@ var flow = require('../phantomflow').init({
 	//earlyexit: true, // abort as soon as a test fails (also prevents report creation)
 	debug: debugMode ? 2 : undefined,
 	createReport: true,
-	test: filterTest
+	test: filterTest,
+	remoteDebug: remoteDebug
 });
 
 if(showReport){
@@ -41,5 +46,5 @@ if(showReport){
 
 	flow.run(function(){
 		process.exit(0);
-	});	
+	});
 }

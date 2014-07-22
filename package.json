@@ -2,7 +2,7 @@
   "name": "phantomflow",
   "version": "0.3.4",
   "description": "UI testing with PhantomCSS and Decision Trees",
-  "main": "phantomFlow.js",
+  "main": "phantomflow.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Huddle/PhantomFlow.git"

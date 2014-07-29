@@ -89,6 +89,8 @@ module.exports.init = function(options) {
 			var isFinished = false;
 			var files;
 
+			var exitCode = 1;
+
 			glob.sync(
 				visualResultsPath + '/**/*.fail.png, ' + 
 				xUnitPath + '/*.xml, ' + 
@@ -199,7 +201,8 @@ module.exports.init = function(options) {
 
 					var mergedData;
 
-					if(code !== 0 ){
+					if(code !== 0 ){			
+
 						console.log(('It broke, sorry. Threads aborted. Non-zero code ('+code+') returned.').red);
 						writeLog(results, failFileName, stdoutStr);
 						if(earlyExit){
@@ -221,6 +224,10 @@ module.exports.init = function(options) {
 							('Completed '+(failCount+passCount) + ' tests in ' + Math.round((Date.now() - time) / 1000) + ' seconds. ') + 
 							(failCount + ' failed, ').bold.red + 
 							(passCount + ' passed. ').bold.green);
+
+						if(failCount === 0){
+							exitCode = 0;
+						}
 
 						if(createReport){
 
@@ -325,7 +332,7 @@ module.exports.init = function(options) {
 				},
 				function(){
 					if(done){
-						done();
+						done(exitCode);
 					}
 				}
 			);

@@ -107,8 +107,8 @@ Deciding how to visualise this data is the hard part.  It has to be readable and
 
 	// flow.report(); // Show report
 
-	flow.run(function(){
-		process.exit(0); // callback is executed when PhantomFlow is complete
+	flow.run(function(code){
+		process.exit(code); // callback is executed when PhantomFlow is complete
 	});	
 
 ```

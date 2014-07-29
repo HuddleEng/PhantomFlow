@@ -44,7 +44,7 @@ if(showReport){
 	// 	process.exit(0);
 	// });
 
-	flow.run(function(){
-		process.exit(0);
+	flow.run(function(code){
+		process.exit(code);
 	});
 }

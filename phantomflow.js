@@ -29,11 +29,11 @@ module.exports.init = function(options) {
 	var time = Date.now();
 
 	var filterTests = options.test;
-	
+
 	var bootstrapPath = path.join(__dirname, 'lib');
 
 	var casperPath = getCasperPath();
-	
+
 	var createReport = options.createReport;
 
 	var includes = path.resolve(options.includes || 'include');
@@ -43,21 +43,21 @@ module.exports.init = function(options) {
 	var remoteDebug = options.remoteDebug || false;
 	var remoteDebugAutoStart = options.remoteDebugAutoStart || false;
 	var remoteDebugPort = options.remoteDebugPort || 9000;
-	
+
 	var threads = options.threads || 4;
-	
+
 	/*
 		Set to false if you do not want the tests to return on the first failure
 	*/
 	var earlyExit = typeof options.earlyexit === 'undefined' ? false : options.earlyexit;
-	
+
 	var threadCompletionCount = 0;
 	var fileGroups;
 
 	var dontDoVisuals = options.skipVisualTests;
 
 	var args = [];
-	
+
 	var visualTestsPath = changeSlashes(tests + '/visuals/');
 
 	var dataPath = changeSlashes(results + '/data/');
@@ -81,8 +81,8 @@ module.exports.init = function(options) {
 			}
 			return;
 		},
-		run: function(done){		
-			
+		run: function(done){
+
 			var loggedErrors = [];
 			var failCount = 0;
 			var passCount = 0;
@@ -92,8 +92,8 @@ module.exports.init = function(options) {
 			var exitCode = 1;
 
 			glob.sync(
-				visualResultsPath + '/**/*.fail.png, ' + 
-				xUnitPath + '/*.xml, ' + 
+				visualResultsPath + '/**/*.fail.png, ' +
+				xUnitPath + '/*.xml, ' +
 				dataPath + '/**/*.js')
 			.forEach(
 				function(file){
@@ -163,11 +163,11 @@ module.exports.init = function(options) {
 			args.push('--flowvisualdebugroot='+ changeSlashes(debugPath) );
 			args.push('--flowvisualstestroot='+ changeSlashes(visualTestsPath) );
 			args.push('--flowvisualsoutputroot='+ changeSlashes(visualResultsPath) );
-			
+
 			if(optionDebug !== void 0){
 				args.push('--flowdebug='+optionDebug);
 			}
-			
+
 			if( optionDebug === 2 ){
 				earlyExit = false;
 			}
@@ -177,7 +177,7 @@ module.exports.init = function(options) {
 			}
 
 			deleteFolderRecursive(results);
-			
+
 			console.log( 'Parallelising ' + files.length + ' test files on ' + threads + ' threads.\n');
 
 			_.forEach(fileGroups, function(files, index){
@@ -188,7 +188,7 @@ module.exports.init = function(options) {
 				var stdoutStr = '';
 				var failFileName = 'error_'+index+'.log';
 				var hasErrored = false;
-				
+
 				groupArgs.push('--flowtests='+changeSlashes(files.join(',')));
 
 				child = cp.spawn(
@@ -196,12 +196,12 @@ module.exports.init = function(options) {
 					groupArgs,
 					{ stdio: false }
 				);
-				
+
 				child.on('close', function(code) {
 
 					var mergedData;
 
-					if(code !== 0 ){			
+					if(code !== 0 ){
 
 						console.log(('It broke, sorry. Threads aborted. Non-zero code ('+code+') returned.').red);
 						writeLog(results, failFileName, stdoutStr);
@@ -220,9 +220,9 @@ module.exports.init = function(options) {
 							console.log(error.msg.bold.red);
 						});
 
-						console.log( 
-							('Completed '+(failCount+passCount) + ' tests in ' + Math.round((Date.now() - time) / 1000) + ' seconds. ') + 
-							(failCount + ' failed, ').bold.red + 
+						console.log(
+							('Completed '+(failCount+passCount) + ' tests in ' + Math.round((Date.now() - time) / 1000) + ' seconds. ') +
+							(failCount + ' failed, ').bold.red +
 							(passCount + ' passed. ').bold.green);
 
 						if(failCount === 0){
@@ -322,7 +322,7 @@ module.exports.init = function(options) {
 			eventEmitter.on('exit', function(){
 				isFinished = true;
 			});
-			
+
 			async.until(
 				function(){
 					return isFinished;
@@ -440,7 +440,7 @@ function changeSlashes(str){
 
 function writeLog(resultsDir, filename, log){
 	var path = resultsDir + '/log/';
-	
+
 	if(!isDir(path)){
 		fs.mkdir(path, function(){
 			writeLogFile(path + filename, log);
@@ -487,7 +487,7 @@ function isFile(path){
 
 function isDir(path){
 	if(fs.existsSync(path)){
-		return fs.lstatSync(path).isDirectory();	
+		return fs.lstatSync(path).isDirectory();
 	} else {
 		return false;
 	}

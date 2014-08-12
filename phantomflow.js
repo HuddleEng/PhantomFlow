@@ -264,7 +264,7 @@ module.exports.init = function(options) {
 							currentTestFile = line.replace('TESTFILE ', '');
 						}
 
-						if(/FAIL/.test(line)){
+						if(/FAIL/.test(line) || /failed/.test(line)){
 							console.log(line.bold.red);
 
 							loggedErrors.push({

@@ -504,7 +504,7 @@ function deleteFile(file){
 function getCasperPath(){
 	var phantomjs = require('phantomjs');
 	var isWindows = /^win/.test(process.platform);
-	var nodeModules = path.resolve(__dirname, 'node_modules');
+	var nodeModules = path.resolve(__dirname, 'node_modules', 'phantomcss', 'node_modules');
 	var casperPath = nodeModules + "/casperjs/bin/casperjs" + (isWindows ? ".exe" : "");
 
 	if (fs.existsSync(phantomjs.path)) {

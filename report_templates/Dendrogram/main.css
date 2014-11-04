@@ -1,5 +1,4 @@
 body {
-	background: #222;
 	font-family: sans-serif;
 	font-size: 11px;
 }
@@ -20,6 +19,9 @@ select {
 }
 .chosen-container {
 	z-index: 999;
+	position: absolute !important;
+	top: 14px;
+	left: 74px;
 }
 
 .step circle {
@@ -98,7 +100,6 @@ select {
 
 .group-pie {
 	stroke-width: 8px;
-	stroke: #222;
 }
 
 
@@ -115,10 +116,7 @@ select {
 }
 
 .text {
-	display: block;
-	stroke: #eee;
-	font-weight: normal;
-	font-size: 12px;
+	font-size: 14px;
 }
 
 .endtext{
@@ -127,10 +125,7 @@ select {
 .decisiontext,
 .chancetext {
 	text-anchor: middle;
-	fill: black;
-	stroke: #ccc;
-	stroke-width: 1px;
-	font-size: 11px;
+	font-size: 14px;
 }
 
 .steptext{
@@ -266,4 +261,62 @@ select {
 	-moz-animation-iteration-count: infinite;
 	-moz-animation-name: glow;
 	-moz-animation-timing-function: ease-in-out; 
+}
+
+
+
+html, body {
+  height: 100%;
+}
+
+body {
+  padding: 50px 0 0 0;
+}
+
+.navbar-toggle {
+  float: left;
+  margin-left: 15px;
+}
+
+.navmenu {
+	width: 376px;
+}
+
+@media (min-width: 0) {
+  .navbar-toggle {
+    display: block; /* force showing the toggle */
+  }
+}
+
+@media (min-width: 992px) {
+  body {
+    padding: 0;
+  }
+  .navbar {
+    right: auto;
+    background: none;
+    border: none;
+  }
+}
+
+
+.previews {
+	padding: 64px 14px 8px 14px;
+}
+
+.previews img{
+	max-height: 200px;
+}
+
+.thumbnail {
+	position: relative;
+}
+.thumbnail .label {
+	position: absolute;
+	bottom: 4px;
+	right: 4px;
+	font-size: 10px;
+}
+.thumbnail:hover .label{
+	text-decoration: none;
 }

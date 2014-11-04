@@ -34,7 +34,7 @@ function createD3ClusterDendrogram(root, config){
 		});
 
 	var svg = d3
-		.select("body")
+		.select("#canvas")
 		.append("svg")
 		.call(zoom)
 		.attr("width", width)
@@ -69,7 +69,7 @@ function createD3ClusterDendrogram(root, config){
 	node.append("circle")
 		.attr("r", 4);
 
-	var tooltip = d3.select("body")
+	var tooltip = d3.select("#canvas")
 		.append("div")
 		.attr("class", "tooltip")
 		.style("position", "absolute")
@@ -99,43 +99,13 @@ function createD3ClusterDendrogram(root, config){
 		})
 		.classed('screenshot',true)
 		.on("mouseover", function(e){
-			if( tooltip.style("visibility") === "hidden" ){
-				if(e.failedScreenshot){
-					tooltipText.text('Failed diff image.');
-					tooltipImg.attr("src", e.failedScreenshot);
-				} else {
-					tooltipText.text('Original/good image');
-					tooltipImg.attr("src", e.originalScreenshot);
-				}
-			}
-			return tooltip.style("visibility", "visible");
-		})
-		.on("mousemove", function(){
-			return mousemove(tooltip);
-		})
-		.on("mouseout", function(){
-			return tooltip.style("visibility", "hidden");
-		})
-		.on("click", function(e){
-			if( !e.failedScreenshot ){
-				return;
-			}
-
-			if( tooltipImg.attr("src") === e.failedScreenshot ){
-				tooltipText.text('Original/good image');
-				tooltipImg.attr("src", e.originalScreenshot);
-
-			} else if ( tooltipImg.attr("src") === e.originalScreenshot ){
-				tooltipText.text('Latest/bad image');
-				tooltipImg.attr("src", e.latestScreenshot);
-
-			} else {
-				tooltipText.text('Failed diff image.');
-				tooltipImg.attr("src", e.failedScreenshot);
-			}
+			$( "body" ).trigger({
+				type:"screenshot",
+				diff: e.failedScreenshot,
+				latest: e.latestScreenshot,
+				original: e.originalScreenshot
+			});
 		});
-
-	//d3.select(self.frameElement).style("height", diameter + "px");
 
 	var rootTests = getLeafInfo(root);
 	var groups = getGroupInfo(rootTests);
@@ -250,7 +220,7 @@ function pie(name, radius, offset, color, svg, data){
 }
 
 function pieTooltip(g){
-	var tooltip = d3.select("body")
+	var tooltip = d3.select("#canvas")
 		.append("div")
 		.attr("class", "tooltip-label")
 		.style("position", "absolute")

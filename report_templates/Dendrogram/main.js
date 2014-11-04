@@ -20,13 +20,9 @@
 			}
 		});
 
-		$('body').append(dropdown);
+		$('#dropdown-container').append(dropdown);
 
 		$(dropdown).chosen();
-
-		console.log(json);
-
-		//appendKey();
 
 		processHash(json);
 
@@ -49,32 +45,6 @@
 		if(hash && hash.indexOf('?') !== -1){
 
 			searchTerm = hash.split('?')[1];
-
-			// combined = {
-			// 	name: 'Results for ' + searchTerm,
-			// 	isBranchRoot: true,
-			// 	isDecisionRoot: true,
-			// 	children: []
-			// };
-
-			// found = $('#dropdown *').filter(function(i, e){return e.value.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1; }).map(function(i,e){return e.value;});
-			// found.each(function(i, hash){
-			// 	promises.push($.get(theBuildWeWantToUse+hash).success(function(data){
-			// 		combined.children.push(data);
-			// 	}));
-			// });
-
-			// if(found.length){
-			// 	$.when.apply($.when, promises).done(function(){
-			// 		createD3Tree(combined, {
-			// 			root: thisBuild,
-			// 			isComplex: true
-			// 		});
-			// 	});
-			// } else {
-			// 	alert('Not found');
-			// }
-
 
 		} else if(hash){
 

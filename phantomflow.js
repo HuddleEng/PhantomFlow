@@ -425,13 +425,30 @@ function dataTransform(key, value, imagePath, imageResultPath){
 function showReport(dir, port){
 	if(isDir(dir)){
 		console.log("Please use ctrl+c to escape".bold.green);
-		connect(connect.static(dir)).listen(port);
+		var server = connect(connect.static(dir));
+		
+		server.use('/rebase', reqHandler).listen(port);
+
 		open('http://localhost:'+port);
 		return false;
 	} else {
 		console.log("A report hasn't been generated.  Maybe you haven't set the createReport option?".bold.yellow);
 		return true;
 	}
+}
+
+function reqHandler(req, res, next){
+	console.log(req.method, req.url);
+
+	if(req.method==='POST'){
+		req.on('data', function(chunk) {
+	    	console.log(chunk.toString());
+	    });
+	    res.writeHead(202, { 'Content-Type': 'text/plain', 'Content-Length': 0});
+    	res.end();
+	}
+
+	//next();
 }
 
 function changeSlashes(str){

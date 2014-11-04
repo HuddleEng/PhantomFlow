@@ -320,3 +320,9 @@ body {
 .thumbnail:hover .label{
 	text-decoration: none;
 }
+
+#rebase {
+	position: absolute;
+	bottom: 4px;
+	left: 4px;
+}

@@ -23,6 +23,7 @@
 			</a>
 			<a href="#" id="latest" target="_blank" class="thumbnail" style="display:none">
 				<img alt="">
+				<button type="button" class="btn btn-danger btn-xs" id="rebase">Rebase</button>
 				<span class="label label-default">Latest</span>
 			</a>
 			<a href="#" id="original" target="_blank" class="thumbnail" style="display:none">
@@ -82,6 +83,13 @@
 				img.attr('src', '');
 			}
 		}
+
+		$('#rebase').click(function(){
+			$.post(window.location.origin+'/rebase', {
+				'myCustomData': 'reallyInterestingValue'
+			});
+			return false;
+		});
 
 	</script>
 

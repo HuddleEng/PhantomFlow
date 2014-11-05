@@ -99,14 +99,14 @@ function createD3ClusterDendrogram(root, config){
 		})
 		.classed('screenshot',true)
 		.on("mouseover", function(e){
-
 			$( "body" ).trigger({
 				type:"screenshot",
 				name: e.name,
 				src: e.screenshot.src,
 				diff: e.failedScreenshot,
 				latest: e.latestScreenshot,
-				original: e.originalScreenshot
+				original: e.originalScreenshot,
+				element: this
 			});
 		});
 

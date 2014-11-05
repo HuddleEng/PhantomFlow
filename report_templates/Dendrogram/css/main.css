@@ -90,7 +90,7 @@ body {
 	.thumbnail:hover .label{
 		text-decoration: none;
 		}
-	#rebase {
+	.thumbnail .btn {
 		position: absolute;
 		bottom: 4px;
 		left: 4px;

@@ -121,7 +121,8 @@ function createD3Tree(root, config){
 				src: e.screenshot.src,
 				diff: e.failedScreenshot,
 				latest: e.latestScreenshot,
-				original: e.originalScreenshot
+				original: e.originalScreenshot,
+				element: this
 			});
 		});
 

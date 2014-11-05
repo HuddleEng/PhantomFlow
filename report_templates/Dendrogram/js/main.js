@@ -4,11 +4,12 @@
 
 	initialiseSideBar();
 
-
 	function initialiseSideBar(){
 
 		var rebaseBtn = $('#rebase');
+		var rebaseSuccessBtn = $('#rebase-success');
 		var imageToRebase;
+		var svgElement;
 
 		$('.navmenu').offcanvas({
 			autohide: false
@@ -16,12 +17,19 @@
 
 		$( "body" ).on("screenshot", function(e){
 			updateSideBar(e);
-						console.log(e);
+
 			if(e.src){
 				imageToRebase = e.src;
-				rebaseBtn.show();
+				svgElement = e.element;
+				if(svgElement.className.baseVal.indexOf('screenshotFail') !== -1){
+					rebaseSuccessBtn.hide();
+					rebaseBtn.show();	
+				} else {
+					rebaseSuccessBtn.show();
+				}
 			} else {
 				rebaseBtn.hide();
+				rebaseSuccessBtn.hide();
 			}
 		});
 
@@ -29,10 +37,16 @@
 		  	updateSideBar({});
 		});
 
-		$('#rebase').click(function(){
-			$.post(window.location.origin+'/rebase', {
-				'img': imageToRebase
-			});
+		rebaseBtn.click(function(){
+			if(confirm("Are you sure you want to accept the latest image as the visual baseline for this test?")){
+				$.post(window.location.origin+'/rebase', {
+					'img': imageToRebase
+				}, function(){
+					rebaseBtn.hide();
+					rebaseSuccessBtn.show();
+					svgElement.className.baseVal = svgElement.className.baseVal.replace('screenshotFail', '');
+				});	
+			}
 			return false;
 		});
 	}

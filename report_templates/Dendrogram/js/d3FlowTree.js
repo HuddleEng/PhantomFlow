@@ -117,6 +117,8 @@ function createD3Tree(root, config){
 		.on("mouseover", function(e){
 			$( "body" ).trigger({
 				type:"screenshot",
+				name: e.name,
+				src: e.screenshot.src,
 				diff: e.failedScreenshot,
 				latest: e.latestScreenshot,
 				original: e.originalScreenshot

@@ -1,0 +1,125 @@
+
+/*
+	Green: #49BF70
+	DarkGreen: 1A4F1D
+	Red: #BF413C
+	DarkRed: #4A0200
+	Amber: #D6B838
+	Neutral1: #808582
+	Neutral2: #313138
+	LightGrey: #DDD
+*/
+
+svg {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	z-index: 0;
+}
+
+.step 			circle { fill: #D6B838; }
+.active 		circle { fill: #808582; }
+.chanceRoot 	circle { fill: #DDD; }
+.decisionRoot 	circle { fill: #DDD; }
+.decision 		circle { fill: #DDD; }
+.chance 		circle { fill: #DDD; }
+.screenshot 	circle { fill: #49BF70; cursor: pointer; }
+	.screenshot:hover circle { fill: #1A4F1D; }
+.fail 			circle { fill: #4A0200; }
+
+.screenshotFail circle {
+	cursor: pointer;
+	fill: #4A0200;
+	transition: all 1s ease-in-out;
+
+	-webkit-animation-direction: normal;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-name: glow;
+	-webkit-animation-timing-function: ease-in-out;
+
+	-moz-animation-direction: normal;
+	-moz-animation-duration: 1s;
+	-moz-animation-iteration-count: infinite;
+	-moz-animation-name: glow;
+	-moz-animation-timing-function: ease-in-out; 
+}
+
+.tooltip {
+	background: transparent;
+	}
+	.tooltip div {
+		font-weight: bold;
+		font-size: 12px;
+		}
+	.tooltip-label {
+		background: white;
+		padding: 8px;
+		border-radius: 3px; 
+		margin-top: -12px;
+		}
+	.tooltip-label div {
+		color: #313138;
+		font-weight: bold;
+		font-size: 12px;
+		}
+
+.root-pie {
+	cursor: pointer;
+	}
+	.root-pie:hover{
+		stroke: white;
+		stroke-width: 2px;
+		}
+.group-pie {
+	stroke-width: 8px;
+}
+
+.link {
+	fill: none;
+	stroke: #DDD;
+	stroke-width: 1.5px;
+	}
+	.link-subtle {
+		fill: none;
+		stroke: #DDD;
+		stroke-width: 1px;
+		}
+
+.text {
+	font-size: 14px;
+	fill: #808582;
+	}
+	.endtext{
+		text-anchor: start;
+		}
+	.decisiontext,
+	.chancetext {
+		text-anchor: middle;
+		font-size: 14px;
+		}
+	.steptext{
+		text-anchor: end;
+		}
+	.familyname {
+		cursor: pointer;
+		}
+	.screenshot .text {
+		cursor: pointer;
+		}
+		.screenshot:hover .text {
+			fill: #313138;
+			}
+
+@-webkit-keyframes glow {
+	0% { fill:red; }
+	50% { fill:darkred; }
+	100% { fill:red; }
+}
+@-moz-keyframes glow {
+	0% { fill:red; }
+	50% { fill:darkred; }
+	100% { fill:red; }
+}

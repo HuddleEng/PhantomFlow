@@ -99,8 +99,11 @@ function createD3ClusterDendrogram(root, config){
 		})
 		.classed('screenshot',true)
 		.on("mouseover", function(e){
+
 			$( "body" ).trigger({
 				type:"screenshot",
+				name: e.name,
+				src: e.screenshot.src,
 				diff: e.failedScreenshot,
 				latest: e.latestScreenshot,
 				original: e.originalScreenshot
@@ -117,7 +120,6 @@ function createD3ClusterDendrogram(root, config){
 	zoom.scale(.75);
 	zoom.translate([width/2, height/2]);
 	zoom.event(svg);
-
 }
 
 function getGroupInfo(array){
@@ -154,17 +156,11 @@ function get_random_color() {
 
 function groupPie(radius,svg,data){
 	var color = d3.scale.ordinal()
-		.range([
-			"#9696BF",
-			"#64647F",
-			"#C8C7FF",
-			"#525260",
-			"#B4B3E5",
-			"#82A5BF",
-			"#576E7F",
-			"#AEDDFF",
-			"#3B4750",
-			"#9CC7E5"]);
+		.range(["#DEDDDA",
+			"#D6D6D2",
+			"#BFBFBB",
+			"#CCCBC8",
+			"#C2C1BE"]);
 
 	var g = pie('group-pie', radius, 46, color, svg, data);
 
@@ -174,17 +170,11 @@ function groupPie(radius,svg,data){
 function rootPie(radius,svg,data){
 
 	var color = d3.scale.ordinal()
-		.range([
-			"#9696BF",
-			"#64647F",
-			"#C8C7FF",
-			"#525260",
-			"#B4B3E5",
-			"#82A5BF",
-			"#576E7F",
-			"#AEDDFF",
-			"#3B4750",
-			"#9CC7E5"]);
+		.range(["#CCD2E3",
+			"#D5E1ED",
+			"#CBD4D6",
+			"#D5EDEC",
+			"#CCE3DB"]);
 
 	var g = pie('root-pie', radius, 8, color, svg, data);
 

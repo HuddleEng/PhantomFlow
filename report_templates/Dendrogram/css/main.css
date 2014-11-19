@@ -1,0 +1,98 @@
+body {
+	font-family: sans-serif;
+	font-size: 11px;
+}
+
+select {
+	position:absolute;
+	top: 10px;
+	left: 10px;
+	width: 288px;
+	}
+	.chosen-container {
+		z-index: 999;
+		position: absolute !important;
+		top: 8px;
+		left: 74px;
+		}
+		.chosen-container .chosen-drop {
+			border: 1px solid #ddd !important;
+			}
+		.chosen-container-single .chosen-single {
+			height: 34px !important;
+			border: 1px solid #ddd !important;
+			}
+			.chosen-container-active.chosen-width-drop .chosen-single{
+				border: 1px solid #ddd !important;
+				}
+			.chosen-container-single .chosen-single span {
+				line-height: 31px;
+				}
+
+html, body {
+	height: 100%;
+}
+
+body {
+	padding: 50px 0 0 0;
+}
+
+.navbar-toggle {
+	float: left;
+	margin-left: 15px;
+}
+
+.navmenu {
+	width: 376px;
+	box-shadow: 4px 0px 84px 0px #999;
+}
+
+@media (min-width: 0) {
+	.navbar-toggle {
+		display: block; /* force showing the toggle */
+	}
+}
+
+@media (min-width: 992px) {
+	body {
+		padding: 0;
+	}
+	.navbar {
+		right: auto;
+		background: none;
+		border: none;
+	}
+}
+
+.lead {
+	font-size: 14px;
+}
+
+.previews {
+	padding: 64px 14px 8px 14px;
+	}
+	.previews h4{
+		font-weight: bold;
+	}
+
+.thumbnail {
+	position: relative;
+	}
+	.thumbnail img {
+		max-height: 164px;
+		}
+	.thumbnail .label {
+		position: absolute;
+		bottom: 4px;
+		right: 4px;
+		font-size: 10px;
+		}
+	.thumbnail:hover .label{
+		text-decoration: none;
+		}
+	.thumbnail .btn {
+		position: absolute;
+		bottom: 4px;
+		left: 4px;
+		box-shadow: 0px 0px 19px 1px #999;
+		}

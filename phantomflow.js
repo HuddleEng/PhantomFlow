@@ -76,7 +76,7 @@ module.exports.init = function(options) {
 	return {
 		event: eventEmitter,
 		report: function report(){
-			if(showReport(reportPath, options.port || 9001)){
+			if(showReport(reportPath, options.port || 9001, { src: visualTestsPath, res: visualResultsPath})){
 				eventEmitter.emit('exit');
 			}
 			return;
@@ -388,19 +388,29 @@ function copyReportTemplate(data, dir, templateName){
 	}
 }
 
+function getImageResultDiffFromSrc(src){
+	return src.replace(/.png$/, '.diff.png');
+}
+
+function getImageResultFailureFromSrc(src){
+	return src.replace(/.png$/, '.fail.png');
+}
+
 function dataTransform(key, value, imagePath, imageResultPath){
-	var obj, ori, latest, fail;
+	var obj, ori, latest, fail, img;
 	if(key === 'screenshot'){
 
-		ori = path.join(imageResultPath, changeSlashes(value));
+		img = changeSlashes(value);
+		ori = path.join(imageResultPath, img);
 
 		if(isFile(ori)){
 
-			latest = ori.replace(/.png$/, '.diff.png');
-			fail = ori.replace(/.png$/, '.fail.png');
+			latest = getImageResultDiffFromSrc(ori);
+			fail = getImageResultFailureFromSrc(ori);
 
 			obj = {
-				original: datauri(ori)
+				original: datauri(ori),
+				src: img
 			};
 
 			if(isFile(fail)){
@@ -422,16 +432,55 @@ function dataTransform(key, value, imagePath, imageResultPath){
 	return value;
 }
 
-function showReport(dir, port){
+function showReport(dir, port, paths){
 	if(isDir(dir)){
 		console.log("Please use ctrl+c to escape".bold.green);
-		connect(connect.static(dir)).listen(port);
+		var server = connect(connect.static(dir));
+		
+		server.use('/rebase', reqHandler(paths) ).listen(port);
+
 		open('http://localhost:'+port);
 		return false;
 	} else {
 		console.log("A report hasn't been generated.  Maybe you haven't set the createReport option?".bold.yellow);
 		return true;
 	}
+}
+
+function reqHandler(paths){
+	return function (req, res, next){
+		if(req.method==='POST'){
+			req.on('data', function(chunk) {
+		    	var image = decodeURIComponent(chunk.toString().split("img=").pop()).replace(/\+/g, ' ');
+		    	var origImage;
+		    	var resImage;
+
+		    	if(image){
+		    		origImage = changeSlashes(paths.src + image);
+		    		resImage = changeSlashes(paths.res + getImageResultDiffFromSrc(image));
+
+		    		if(isFile(origImage) && isFile(resImage)){
+		    			console.log(('Rebasing... ' + origImage).bold.yellow);
+		    			deleteFile(origImage);
+		    			moveFile(resImage, origImage);
+		    		}
+		    	}
+
+		    });
+		    res.writeHead(202, { 'Content-Type': 'text/plain', 'Content-Length': 0});
+	    	res.end();
+		} else if(req.method==='GET') {
+		    res.writeHead(202, { 'Content-Type': 'text/plain', 'Content-Length': 0});
+		    console.log(('UI can make POST for image rebase').bold.yellow);
+	    	res.end();
+		} else {
+			next();
+		}
+	}
+}
+
+function moveFile(oldPath, newPath){
+	fs.renameSync(oldPath, newPath);
 }
 
 function changeSlashes(str){

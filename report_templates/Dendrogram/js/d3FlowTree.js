@@ -5,18 +5,6 @@
 
 */
 
-function appendKey(){
-	$('body').append('<div class="key">' +
-		'  <span class="unimplemented"/>&nbsp;</span> Step without a test<br/><br/>' +
-		'  <span class="passed"/>&nbsp;</span> Passed step<br/><br/>' +
-		'  <span class="failed"/>&nbsp;</span> Failed step<br/><br/>' +
-		'  <span class="decision"/>&nbsp;</span> Decision <br/><br/>' +
-		'  <span class="chance"/>&nbsp;</span> Chance event<br/><br/>' +
-		'  <span class="screenshot"/>&nbsp;</span> Successful visual regression test<br/><br/>' +
-		'  <span class="failedScreenshot"/>&nbsp;</span> Failed visual regression test<br/>' +
-		'</div>');
-}
-
 function createD3Tree(root, config){
 
 	config = config || {};
@@ -42,7 +30,7 @@ function createD3Tree(root, config){
 		});
 
 	var svg = d3
-		.select("body")
+		.select("#canvas")
 		.append("svg")
 		.call(zoom)
 		.attr("width", width)
@@ -97,7 +85,7 @@ function createD3Tree(root, config){
 		})
 		.classed('fail',true);
 
-	var tooltip = d3.select("body")
+	var tooltip = d3.select("#canvas")
 		.append("div")
 		.attr("class", "tooltip")
 		.style("position", "absolute")
@@ -127,60 +115,15 @@ function createD3Tree(root, config){
 		})
 		.classed('screenshot',true)
 		.on("mouseover", function(e){
-			if( tooltip.style("visibility") === "hidden" ){
-				if(e.failedScreenshot){
-					tooltipText.text('Failed diff image.');
-					tooltipImg.attr("src", e.failedScreenshot);
-				} else {
-					tooltipText.text('Original/good image');
-					tooltipImg.attr("src", e.originalScreenshot);
-				}
-			}
-			return tooltip.style("visibility", "visible");
-		})
-		.on("mousemove", function(){
-
-			var width = Number(tooltip.style("width").replace('px', ''));
-			var height = Number(tooltip.style("height").replace('px', ''));
-			var right = d3.event.pageX + 10 + width;
-			var top = d3.event.pageY-10 + height;
-
-			if(right > document.body.clientWidth){
-				right = d3.event.pageX-10 - width;
-			} else {
-				right = d3.event.pageX+10;
-			}
-
-			if( top > document.body.clientHeight){
-				top = d3.event.pageY-10 - height;
-			} else {
-				top = d3.event.pageY-10;
-			}
-
-			return tooltip.style("top", top +"px").style("left", right+"px");
-
-		})
-		.on("mouseout", function(){
-			return tooltip.style("visibility", "hidden");
-		})
-		.on("click", function(e){
-
-			if( !e.failedScreenshot ){
-				return;
-			}
-
-			if( tooltipImg.attr("src") === e.failedScreenshot ){
-				tooltipText.text('Original/good image');
-				tooltipImg.attr("src", e.originalScreenshot);
-
-			} else if ( tooltipImg.attr("src") === e.originalScreenshot ){
-				tooltipText.text('Latest/bad image');
-				tooltipImg.attr("src", e.latestScreenshot);
-
-			} else {
-				tooltipText.text('Failed diff image.');
-				tooltipImg.attr("src", e.failedScreenshot);
-			}
+			$( "body" ).trigger({
+				type:"screenshot",
+				name: e.name,
+				src: e.screenshot.src,
+				diff: e.failedScreenshot,
+				latest: e.latestScreenshot,
+				original: e.originalScreenshot,
+				element: this
+			});
 		});
 
 	var dy = !!window.chrome ? 6 : 22;

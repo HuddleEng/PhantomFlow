@@ -1,22 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Dendrogram, example Flow visualisation</title>
+	<meta charset="utf-8">
+	<title>Phantom Flow</title>
 
-<link rel="stylesheet" href="main.css" type="text/css" />
-<link rel="stylesheet" href="chosen.css">
-
-<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="lodash.js"></script>
-
-<script src="chosen.jquery.min.js"></script>
-
-<script src="d3FlowTree.js"></script>
-<script src="d3ClusterDendrogram.js"></script>
-<script src="main.js"></script>
-
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/jasny-bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="css/graph.css" type="text/css" />
+	<link rel="stylesheet" href="css/main.css" type="text/css" />
+	<link rel="stylesheet" href="css/chosen.css">
 </head>
-<body></body>
+<body>
+
+	<nav id="myNavmenu" class="navmenu navmenu-default navmenu-fixed-left offcanvas" role="navigation">
+
+		<div class="previews">
+			<p class="lead">
+				Mouse over a green or red circle to see it's visual test below.  If it is red, it has failed.  If you want to accept the change, click the red rebase button.
+			</p>
+			<h4 id="vis_name"></h4>
+			<a href="#" id="diff" target="_blank" class="thumbnail" style="display:none">
+				<img alt="">
+				<span class="label label-warning">Failure</span>
+			</a>
+			<a href="#" id="latest" target="_blank" class="thumbnail" style="display:none">
+				<img alt="">
+				<button type="button" class="btn btn-danger btn-xs" id="rebase">Rebase</button>
+				<button type="button" class="btn btn-success btn-xs" id="rebase-success" style="display:none">Rebased!</button>
+				<span class="label label-default">Latest</span>
+			</a>
+			<a href="#" id="original" target="_blank" class="thumbnail" style="display:none">
+				<img alt="">
+				<span class="label label-success">Original</span>
+			</a>
+		</div>
+	</nav>
+	<div class="navbar navbar-default navbar-fixed-top">
+	  <button type="button" class="navbar-toggle" data-toggle="offcanvas" data-target="#myNavmenu" data-canvas="body">
+	    <span class="icon-bar"></span>
+	    <span class="icon-bar"></span>
+	    <span class="icon-bar"></span>
+	  </button>
+	  <span id="dropdown-container"></span>
+	</div>
+
+	<div class="container">
+		<div id="canvas"></div>
+    </div>
+
+	<script src="js/jquery-1.11.1.min.js"></script>
+	<script src="js/lodash.js"></script>
+	<script src="js/d3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jasny-bootstrap.min.js"></script>
+	<script src="js/chosen.jquery.min.js"></script>
+	<script src="js/d3FlowTree.js"></script>
+	<script src="js/d3ClusterDendrogram.js"></script>
+	<script src="js/main.js"></script>
+
+</body>
 </html>

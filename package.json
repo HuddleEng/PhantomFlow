@@ -1,6 +1,6 @@
 {
   "name": "phantomflow",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "UI testing with PhantomCSS and Decision Trees",
   "main": "phantomflow.js",
   "repository": {
@@ -32,7 +32,7 @@
     "connect": "~2.14.4",
     "colors": "~0.6.2",
     "lodash": "~2.4.1",
-    "phantomcss": "~0.8.0",
+    "phantomcss": "~0.9.0",
     "async": "~0.8.0",
     "phantomjs": "~1.9.7-8"
   },

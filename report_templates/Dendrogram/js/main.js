@@ -4,16 +4,29 @@
 
 	initialiseSideBar();
 
-	function initialiseSideBar(){
+	$.get(window.location.origin+'/rebase')
+		.done(function(){
+			initialiseSideBar(true);
+		})
+		.fail(function(){
+			initialiseSideBar(false);
+		});
+
+	function initialiseSideBar(canRebase){
 
 		var rebaseBtn = $('#rebase');
 		var rebaseSuccessBtn = $('#rebase-success');
 		var imageToRebase;
 		var svgElement;
+		var canRebase;
+
+		if(canRebase){
+			rebaseBtn.remove();
+		}
 
 		$('.navmenu').offcanvas({
 			autohide: false
-		})
+		});
 
 		$( "body" ).on("screenshot", function(e){
 			updateSideBar(e);

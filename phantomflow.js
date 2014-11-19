@@ -469,8 +469,12 @@ function reqHandler(paths){
 		    });
 		    res.writeHead(202, { 'Content-Type': 'text/plain', 'Content-Length': 0});
 	    	res.end();
+		} else if(req.method==='GET') {
+		    res.writeHead(202, { 'Content-Type': 'text/plain', 'Content-Length': 0});
+		    console.log(('UI can make POST for image rebase').bold.yellow);
+	    	res.end();
 		} else {
-			next();	
+			next();
 		}
 	}
 }

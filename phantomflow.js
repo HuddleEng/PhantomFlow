@@ -451,32 +451,32 @@ function reqHandler(paths){
 	return function (req, res, next){
 		if(req.method==='POST'){
 			req.on('data', function(chunk) {
-		    	var image = decodeURIComponent(chunk.toString().split("img=").pop()).replace(/\+/g, ' ');
-		    	var origImage;
-		    	var resImage;
+				var image = decodeURIComponent(chunk.toString().split("img=").pop()).replace(/\+/g, ' ');
+				var origImage;
+				var resImage;
 
-		    	if(image){
-		    		origImage = changeSlashes(paths.src + image);
-		    		resImage = changeSlashes(paths.res + getImageResultDiffFromSrc(image));
+				if(image){
+					origImage = changeSlashes(paths.src + image);
+					resImage = changeSlashes(paths.res + getImageResultDiffFromSrc(image));
 
-		    		if(isFile(origImage) && isFile(resImage)){
-		    			console.log(('Rebasing... ' + origImage).bold.yellow);
-		    			deleteFile(origImage);
-		    			moveFile(resImage, origImage);
-		    		}
-		    	}
+					if(isFile(origImage) && isFile(resImage)){
+						console.log(('Rebasing... ' + origImage).bold.yellow);
+						deleteFile(origImage);
+						moveFile(resImage, origImage);
+					}
+				}
 
-		    });
-		    res.writeHead(202, { 'Content-Type': 'text/plain', 'Content-Length': 0});
-	    	res.end();
+			});
+			res.writeHead(202, { 'Content-Type': 'text/plain', 'Content-Length': 0});
+			res.end();
 		} else if(req.method==='GET') {
-		    res.writeHead(202, { 'Content-Type': 'text/plain', 'Content-Length': 0});
-		    console.log(('UI can make POST for image rebase').bold.yellow);
-	    	res.end();
+			res.writeHead(202, { 'Content-Type': 'text/plain', 'Content-Length': 0});
+			console.log(('UI can make POST for image rebase').bold.yellow);
+			res.end();
 		} else {
 			next();
 		}
-	}
+	};
 }
 
 function moveFile(oldPath, newPath){
@@ -551,16 +551,16 @@ function deleteFile(file){
 }
 
 function getCasperPath(){
-	var phantomjs = require('phantomjs');
-	var isWindows = /^win/.test(process.platform);
 	var nodeModules = path.resolve(__dirname, 'node_modules', 'phantomcss', 'node_modules');
+	var phantomjs = require( path.resolve(nodeModules, 'phantomjs' ));
+	var isWindows = /^win/.test(process.platform);
 	var casperPath = nodeModules + "/casperjs/bin/casperjs" + (isWindows ? ".exe" : "");
 
 	if (fs.existsSync(phantomjs.path)) {
 		process.env["PHANTOMJS_EXECUTABLE"] = phantomjs.path;
-    } else {
+	} else {
 		console.log("PhantomJS is not installed? Try `npm install`".bold.red);
-    }
+	}
 
 	if (!fs.existsSync(casperPath)) {
 		console.log("CasperJS is not installed? Try `npm install`".bold.red);

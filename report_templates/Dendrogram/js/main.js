@@ -2,8 +2,6 @@
 
 	getDataAndAppendDropdown();
 
-	initialiseSideBar();
-
 	$.get(window.location.origin+'/rebase')
 		.done(function(){
 			initialiseSideBar(true);
@@ -20,7 +18,7 @@
 		var svgElement;
 		var canRebase;
 
-		if(canRebase){
+		if(!canRebase){
 			rebaseBtn.remove();
 		}
 

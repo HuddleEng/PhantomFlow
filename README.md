@@ -171,7 +171,7 @@ Debugging is often a painful part of writing tests with PhantomJS.  If you're ex
 
 Rebasing is the process of deleting an original visual test, and creating a new baseline, either by renaming the diff image, or running the test suite again to create a new image.  The PhantomFlow UI provides a quick way to find and inspect differences, with a 'rebase' button to accept the latest image as the baseline.
 
-![PhantomFlow UI: Rebase button](https://raw.githubusercontent.com/Huddle/PhantomFlow/master/huddle-vis.png)
+![PhantomFlow UI: Rebase button](https://raw.githubusercontent.com/Huddle/PhantomFlow/master/rebase-vis.png)
 
 ### What next?
 

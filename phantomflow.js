@@ -55,6 +55,7 @@ module.exports.init = function(options) {
 	var fileGroups;
 
 	var dontDoVisuals = options.skipVisualTests;
+	var casperArgs = options.casperArgs || [];
 
 	var args = [];
 
@@ -174,6 +175,10 @@ module.exports.init = function(options) {
 
 			if(dontDoVisuals){
 				args.push('--novisuals='+dontDoVisuals);
+			}
+
+			if (casperArgs) {
+				args = args.concat(casperArgs);
 			}
 
 			deleteFolderRecursive(results);
@@ -436,7 +441,7 @@ function showReport(dir, port, paths){
 	if(isDir(dir)){
 		console.log("Please use ctrl+c to escape".bold.green);
 		var server = connect(connect.static(dir));
-		
+
 		server.use('/rebase', reqHandler(paths) ).listen(port);
 
 		open('http://localhost:'+port);

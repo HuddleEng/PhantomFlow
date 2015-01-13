@@ -122,6 +122,7 @@ Deciding how to visualise this data is the hard part.  It has to be readable and
 ### Options
 
 * createReport (boolean) : Should a report/visualisation be built?
+* casperArgs (string[]): optional arguments to pass into casper and PhantomJS, such as `--ignore-ssl-errors=true`
 * debug (number) : A value of 1 will output more logging, 2 will generate full page screenshots per test which can be found in the test-results folder.  Forces tests onto one thread for readability.
 * earlyexit (boolean) : False by default, if set to true all tests will abort on the first failure
 * includes (string) : Defaults to 'include', it is the root directory of custom global includes (within the PhantomJS domain)

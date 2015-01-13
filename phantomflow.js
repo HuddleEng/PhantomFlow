@@ -55,6 +55,7 @@ module.exports.init = function(options) {
 	var fileGroups;
 
 	var dontDoVisuals = options.skipVisualTests;
+	var hideElements = options.hideElements || [];
 	var casperArgs = options.casperArgs || [];
 
 	var args = [];
@@ -177,13 +178,17 @@ module.exports.init = function(options) {
 				args.push('--novisuals='+dontDoVisuals);
 			}
 
+			if (hideElements) {
+				args.push('--hideelements=' + hideElements.join(','));
+			}
+			
 			if (casperArgs) {
 				args = args.concat(casperArgs);
 			}
-
+			
 			deleteFolderRecursive(results);
 
-			console.log( 'Parallelising ' + files.length + ' test files on ' + threads + ' threads.\n');
+			console.log('Parallelising ' + files.length + ' test files on ' + threads + ' threads.\n');
 
 			_.forEach(fileGroups, function(files, index){
 

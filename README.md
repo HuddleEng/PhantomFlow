@@ -129,6 +129,7 @@ Deciding how to visualise this data is the hard part.  It has to be readable and
 * includes (string) : Defaults to 'include', it is the root directory of custom global includes (within the PhantomJS domain)
 * port (number) : Defaults to 9001, this is the port that will be used to show the report/visualisation
 * results (string) : Defaults to 'test-results', it is the root directory of the test results
+* reports (string) : Defaults to {results} + '/report/', it is the root directory of generated reports, useful for proxying the reports
 * remoteDebug (boolean) : Enable PhantomJS remote debugging
 * remoteDebugAutoStart (boolean) : Enable autostart for PhantomJS remote debugging
 * remoteDebugPort (number) : Defaults to 9000, the port on which Web Inspector will run

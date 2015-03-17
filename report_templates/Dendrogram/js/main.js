@@ -2,7 +2,7 @@
 
 	getDataAndAppendDropdown();
 
-	$.get(window.location.origin+'/rebase')
+	$.get('rebase')
 		.done(function(){
 			initialiseSideBar(true);
 		})
@@ -50,7 +50,7 @@
 
 		rebaseBtn.click(function(){
 			if(confirm("Are you sure you want to accept the latest image as the visual baseline for this test?")){
-				$.post(window.location.origin+'/rebase', {
+				$.post('rebase', {
 					'img': imageToRebase
 				}, function(){
 					rebaseBtn.hide();

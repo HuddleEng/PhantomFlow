@@ -455,7 +455,7 @@ function showReport( dir, port, paths ) {
 		console.log( "Please use ctrl+c to escape".bold.green );
 		var server = connect( connect.static( dir ) );
 
-		server.use( 'rebase', reqHandler( paths ) ).listen( port );
+		server.use( '/rebase', reqHandler( paths ) ).listen( port );
 
 		open( 'http://localhost:' + port );
 		return false;

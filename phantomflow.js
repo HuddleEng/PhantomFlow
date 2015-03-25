@@ -39,6 +39,7 @@ module.exports.init = function ( options ) {
 	var includes = path.resolve( options.includes || 'include' );
 	var tests = path.resolve( options.tests || 'test' ) + '/';
 	var results = path.resolve( options.results || 'test-results' );
+	var reports = path.resolve( options.reports || results + '/report/' );
 
 	var remoteDebug = options.remoteDebug || false;
 	var remoteDebugAutoStart = options.remoteDebugAutoStart || false;
@@ -65,7 +66,8 @@ module.exports.init = function ( options ) {
 	var dataPath = changeSlashes( results + '/data/' );
 	var xUnitPath = changeSlashes( results + '/xunit/' );
 	var debugPath = changeSlashes( results + '/debug/' );
-	var reportPath = changeSlashes( results + '/report/' );
+	var reportPath = changeSlashes( reports );
+
 	var visualResultsPath = changeSlashes( results + '/visuals/' );
 
 	optionDebug = parseInt( options.debug, 10 ) < 3 ? parseInt( options.debug, 10 ) : void 0;

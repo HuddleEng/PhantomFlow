@@ -195,7 +195,17 @@ module.exports.init = function ( options ) {
 				args = args.concat( casperArgs );
 			}
 
-			deleteFolderRecursive( results );
+			if ( filterTests ) {
+				deleteFolderRecursive( reportPath );
+				_.forEach( files, function( file ){
+					deleteFolderRecursive( dataPath + file );
+					deleteFolderRecursive( debugPath + file );
+					deleteFolderRecursive( visualResultsPath + file );
+				});
+			}
+			else {
+				deleteFolderRecursive ( results );
+			}
 
 			console.log( 'Parallelising ' + files.length + ' test files on ' + threads + ' threads.\n' );
 

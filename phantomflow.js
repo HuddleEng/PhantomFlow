@@ -314,7 +314,7 @@ module.exports.init = function ( options ) {
 
 								child.kill();
 							}
-						} else if ( threads === 1 ) {
+						} else if ( threads === 1 && optionDebug > 0 ) {
 							console.log( line.white );
 						}
 

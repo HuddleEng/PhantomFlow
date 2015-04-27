@@ -362,7 +362,7 @@ module.exports.init = function ( options ) {
 				},
 				function () {
 					if ( done ) {
-						done( exitCode );
+						done( exitCode, { passCount: passCount, failCount: failCount, loggedErrors: loggedErrors });
 					}
 				}
 			);

@@ -57,6 +57,7 @@ module.exports.init = function ( options ) {
 
 	var dontDoVisuals = options.skipVisualTests;
 	var hideElements = options.hideElements || [];
+	var mismatchTolerance = options.mismatchTolerance || '';
 	var casperArgs = options.casperArgs || [];
 
 	var args = [];
@@ -189,6 +190,10 @@ module.exports.init = function ( options ) {
 
 			if ( hideElements ) {
 				args.push( '--hideelements=' + hideElements.join( ',' ) );
+			}
+
+			if (mismatchTolerance) {
+			    args.push('--mismatchTolerance=' + mismatchTolerance);
 			}
 
 			if ( casperArgs ) {

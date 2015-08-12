@@ -126,6 +126,7 @@ Deciding how to visualise this data is the hard part.  It has to be readable and
 * debug (number) : A value of 1 will output more logging, 2 will generate full page screenshots per test which can be found in the test-results folder.  Forces tests onto one thread for readability.
 * earlyexit (boolean) : False by default, if set to true all tests will abort on the first failure
 * hideElements (string[]) : array of element names that should be invisible in the final page, and in screenshots
+* mismatchTolerance (number) : Mismatch tolerance defaults to  0.05%. Increasing this value will decrease test coverage
 * includes (string) : Defaults to 'include', it is the root directory of custom global includes (within the PhantomJS domain)
 * port (number) : Defaults to 9001, this is the port that will be used to show the report/visualisation
 * results (string) : Defaults to 'test-results', it is the root directory of the test results

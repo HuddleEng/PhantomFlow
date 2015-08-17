@@ -593,10 +593,24 @@ function deleteFile( file ) {
 
 function getCasperPath() {
 	var nodeModules = path.resolve( __dirname, 'node_modules', 'phantomcss', 'node_modules' );
-	var phantomjs = require( path.resolve( nodeModules, 'phantomjs' ) );
-	var isWindows = /^win/.test( process.platform );
-	var casperPath = nodeModules + "/casperjs/bin/casperjs" + ( isWindows ? ".exe" : "" );
 
+	var phantomjsPath = path.resolve( nodeModules, 'phantomjs' );
+	var isWindows = /^win/.test( process.platform );
+	var casperPath = path.resolve( nodeModules, 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
+
+	try {
+		var stats = fs.lstatSync(phantomjsPath);
+		if (!stats.isDirectory()) {
+			phantomjsPath = 'phantomjs';
+			casperPath = path.resolve( __dirname, '..', 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
+		}
+	}
+	catch (e) {
+			phantomjsPath = 'phantomjs';
+			casperPath = path.resolve( __dirname, '..', 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
+	}
+
+	var phantomjs = require( phantomjsPath );
 	if ( fs.existsSync( phantomjs.path ) ) {
 		process.env[ "PHANTOMJS_EXECUTABLE" ] = phantomjs.path;
 	} else {

@@ -597,17 +597,21 @@ function getCasperPath() {
 	var phantomjsPath = path.resolve( nodeModules, 'phantomjs' );
 	var isWindows = /^win/.test( process.platform );
 	var casperPath = path.resolve( nodeModules, 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
+	var stats;
 
 	try {
-		var stats = fs.lstatSync(phantomjsPath);
-		if (!stats.isDirectory()) {
-			phantomjsPath = 'phantomjs';
-			casperPath = path.resolve( __dirname, '..', 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
-		}
+		stats = fs.lstatSync(phantomjsPath);
 	}
 	catch (e) {
-			phantomjsPath = 'phantomjs';
-			casperPath = path.resolve( __dirname, '..', 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
+		phantomjsPath = 'phantomjs';
+		casperPath = path.resolve( __dirname, '..', 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
+	}
+	
+	try {
+		stats = fs.lstatSync(casperPath);
+	}
+	catch (e) {
+		casperPath = path.resolve( __dirname, 'node_modules', 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));		
 	}
 
 	var phantomjs = require( phantomjsPath );

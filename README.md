@@ -39,7 +39,7 @@ The D3.js visualisation opens with a combined view which merges the test decisio
 
 ### Test Example
 
-The [demo](http://github.com/Huddle/PhantomFlow/tree/master/test/flows/coffeemachine.test.js) describes a fictional Coffee machine application.
+The [demo](http://github.com/Huddle/PhantomFlow/tree/master/test/flows/coffeemachine.test.js) describes a fictional Coffee machine application. Please note that test files must use the '.test.js' suffix.
 
 ```javascript
 

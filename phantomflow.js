@@ -365,7 +365,6 @@ module.exports.init = function ( options ) {
 
 					children = _.difference(children, deadChildren); // remove dead children
 					childrenGraveyard = childrenGraveyard.concat(deadChildren);
-					if(deadChildren.length) console.log('Removed ' + deadChildren.length +' dead process(es)');
 					pickUpJob();
 
 					//console.log(logMessage);
@@ -386,10 +385,10 @@ module.exports.init = function ( options ) {
 
 					if(allZero){
 						console.log( '\n All the threads have completed (all process exit codes 0). \n'.grey );
+						console.log(exitCodesOutputString);
 					} else {
 						console.log('\nSome processes exited with errors:\n'.red);
 						console.log(exitCodesOutputString);
-
 					}
 
 					loggedErrors.forEach( function ( error ) {

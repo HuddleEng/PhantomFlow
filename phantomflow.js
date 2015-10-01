@@ -131,7 +131,6 @@ module.exports.init = function ( options ) {
 				files = _.filter( files, function ( file ) {
 					return file.toLowerCase().indexOf( filterTests.toLowerCase() ) !== -1;
 				} );
-				numProcesses = 1;
 			}
 
 			/*
@@ -148,13 +147,6 @@ module.exports.init = function ( options ) {
 			if ( optionDebug > 0 || remoteDebug ) {
 				numProcesses = 1;
 			}
-
-			/*
-				Group the files for thread parallelization
-			*/
-			fileGroups = _.groupBy( files, function ( val, index ) {
-				return index % numProcesses;
-			} );
 
 			/*
 				Enable https://github.com/ariya/phantomjs/wiki/Troubleshooting#remote-debugging
@@ -220,29 +212,34 @@ module.exports.init = function ( options ) {
 				console.log( 'Processes that are idle for more than ' + processIdleTimeout + 'ms will be terminated.\n' );
 			}
 			var children = [];
+			var childrenGraveyard = [];
 
-			_.forEach( fileGroups, function ( files, index ) {
+			function pickUpJob(){
+				var fileIndex = files.length;
+				if( !fileIndex || children.length >= numProcesses){
+					return;
+				}
 
-				var groupArgs = args.slice( 0 );
-				var child;
-				var currentTestFile = '';
-				var stdoutStr = '';
-				var failFileName = 'error_' + index + '.log';
-				var hasErrored = false;
+				var file = files.pop();
 
-				groupArgs.push( '--flowtests=' + changeSlashes( files.join( ',' ) ) );
-
-				child = cp.spawn(
+				console.log('Picking up job: '.green + file);
+				var child = cp.spawn(
 					changeSlashes( casperPath ),
-					groupArgs, {
+					args.slice( 0 ).concat( [ '--flowtests=' + changeSlashes( file ) ] ), {
 						stdio: false
 					}
 				);
 
+				child.hasErrored = false;
 				child.dead = false;
 				child.lastOutputTime = new Date().getTime();
 				child.logsWritten = false;
 				child.exitCode = null;
+				child.testFile = file;
+				child.failFileName = 'error_' + fileIndex + '.log';
+				child.fileIndex = fileIndex;
+				child.logPrefix = '[PID '+child.pid+'] [Test file: ' + child.testFile + '] ';
+				child.stdoutStr = '';
 
 				children.push(child);
 
@@ -251,14 +248,14 @@ module.exports.init = function ( options ) {
 					child.exitCode = code;
 					if ( code !== 0 ) {
 						if(!child.logsWritten){
-							console.log('[PID '+child.pid+'] ' + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.' ).red );
-							writeLog( results, failFileName, stdoutStr );
+							console.log(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.' ).red );
+							writeLog( results, child.failFileName, child.stdoutStr );
 							child.logsWritten = true;
 						}
 						return;
 					}
 					if(!child.logsWritten){
-						console.log( '\n[PID '+child.pid+'] ' + 'A process has completed. \n'.yellow );
+						console.log( '\n' + child.logPrefix + 'A process has completed. \n'.yellow );
 						child.logsWritten = true;
 					}
 				}
@@ -278,27 +275,23 @@ module.exports.init = function ( options ) {
 					}
 
 					if ( /Error:/.test( bufstr ) ) {
-						hasErrored = true;
+						child.hasErrored = true;
 					}
 
 					bufstr.split( /\n/g ).forEach( function ( line ) {
-
-						if ( /TESTFILE/.test( line ) ) {
-							currentTestFile = line.replace( 'TESTFILE ', '' );
-						}
 
 						if ( /FAIL|\[PhantomCSS\] Screenshot capture failed/.test( line ) ) {
 							console.log( line.bold.red );
 
 							loggedErrors.push( {
-								file: currentTestFile,
+								file: child.testFile,
 								msg: line
 							} );
 
 							failCount++;
 
 							if ( earlyExit === true ) {
-								writeLog( results, failFileName, stdoutStr );
+								writeLog( results, child.failFileName, child.stdoutStr );
 								kill(child.pid);
 								child.kill();
 							}
@@ -308,10 +301,10 @@ module.exports.init = function ( options ) {
 							console.log( line.green );
 						} else if ( /DEBUG/.test( line ) ) {
 							console.log( ( '\n' + line.replace( /DEBUG/, '' ) + '\n' ).yellow );
-						} else if ( hasErrored ) {
+						} else if ( child.hasErrored ) {
 							console.log( line.bold.red );
 							if ( earlyExit === true ) {
-								writeLog( results, failFileName, stdoutStr );
+								writeLog( results, child.failFileName, child.stdoutStr );
 								kill(child.pid);
 								child.kill();
 							}
@@ -319,37 +312,40 @@ module.exports.init = function ( options ) {
 							console.log( line.white );
 						}
 
-						stdoutStr += line;
+						child.stdoutStr += line;
 					} );
 				} );
 
-				if ( remoteDebug ) {
-					console.log( "Remote debugging is enabled.  Web Inspector interface will show shortly.".bold.green );
-					console.log( "Please use ctrl+c to escape\n".bold.green );
-					console.log( "https://github.com/ariya/phantomjs/wiki/Troubleshooting#remote-debugging\n".underline.bold.grey );
+			}
 
-					if ( !remoteDebugAutoStart ) {
-						console.log( "Click 'about:blank' to see the PhantomJS Inspector." );
-						console.log( "To start, enter the '__run()' command in the Web Inspector Console.\n" );
-					}
+			if ( remoteDebug ) {
+				console.log( "Remote debugging is enabled.  Web Inspector interface will show shortly.".bold.green );
+				console.log( "Please use ctrl+c to escape\n".bold.green );
+				console.log( "https://github.com/ariya/phantomjs/wiki/Troubleshooting#remote-debugging\n".underline.bold.grey );
 
-					setTimeout( function () {
-						//console.log(("If Safari or Chrome is not your default browser, please open http://localhost:"+remoteDebugPort+" in a compatible browser.\n").bold.yellow);
-						open( 'http://localhost:' + remoteDebugPort, "chrome" );
-					}, 3000 );
+				if ( !remoteDebugAutoStart ) {
+					console.log( "Click 'about:blank' to see the PhantomJS Inspector." );
+					console.log( "To start, enter the '__run()' command in the Web Inspector Console.\n" );
 				}
-			} );
+
+				setTimeout( function () {
+					//console.log(("If Safari or Chrome is not your default browser, please open http://localhost:"+remoteDebugPort+" in a compatible browser.\n").bold.yellow);
+					open( 'http://localhost:' + remoteDebugPort, "chrome" );
+				}, 3000 );
+			}
 
 			async.until(
 				function () {
 					var timeNow = new Date().getTime();
 					var allDead = true;
 					var someDead = false;
+					var testsDone = files.length === 0;
 					var logMessage = '';
 
+					var deadChildren = [];
 					children.forEach(function (child) {
 						var idleTime = Math.abs(timeNow - child.lastOutputTime);
-						logMessage += (child.dead ? 'DEAD' : 'ALIVE') + ' (' + Math.ceil(idleTime/1000) + 's)\t';
+						logMessage += (child.dead ? 'DEAD'.red : 'ALIVE'.green) + ' (' + Math.ceil(idleTime/1000) + 's)\t';
 						if (processIdleTimeout && !child.dead && idleTime > processIdleTimeout) {
 							console.log('[PID '+child.pid+'] ' + 'The process has been idle for more than ' + processIdleTimeout + 'ms.');
 							if(!remoteDebug){
@@ -359,13 +355,23 @@ module.exports.init = function ( options ) {
 							}
 						}
 
+						if( child.dead ) {
+							deadChildren.push(child);
+						}
+
 						allDead = allDead && child.dead;
 						someDead = someDead || child.dead;
 					});
+
+					children = _.difference(children, deadChildren); // remove dead children
+					childrenGraveyard = childrenGraveyard.concat(deadChildren);
+					if(deadChildren.length) console.log('Removed ' + deadChildren.length +' dead process(es)');
+					pickUpJob();
+
 					//console.log(logMessage);
 
 					// wait until all children dead or early exit and some have died.
-					return (earlyExit && someDead) || allDead;
+					return (earlyExit && someDead) || (testsDone && allDead);
 				},
 				function ( callback ) {
 					setTimeout( callback, 100 );
@@ -373,8 +379,8 @@ module.exports.init = function ( options ) {
 				function () {
 					var allZero = true;
 					var exitCodesOutputString = '';
-					children.forEach(function (child) {
-						exitCodesOutputString += '[PID ' + child.pid + '] ' + child.exitCode + '\t';
+					childrenGraveyard.forEach(function (child) {
+						exitCodesOutputString += child.logPrefix + (child.exitCode === 0 ? 'OK (exit code 0)'.green : ('Fail with code ' + child.exitCode).red)+ '\n';
 						allZero = allZero && child.exitCode === 0;
 					});
 

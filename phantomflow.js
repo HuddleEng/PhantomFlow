@@ -19,6 +19,7 @@ var glob = require( "glob" );
 var cp = require( 'child_process' );
 var wrench = require( 'wrench' );
 var async = require( 'async' );
+var kill = require( 'tree-kill' );
 
 var optionDebug;
 
@@ -45,12 +46,14 @@ module.exports.init = function ( options ) {
 	var remoteDebugAutoStart = options.remoteDebugAutoStart || false;
 	var remoteDebugPort = options.remoteDebugPort || 9000;
 
-	var threads = options.threads || 4;
+	var numProcesses = options.threads || 4;
 
 	/*
 		Set to false if you do not want the tests to return on the first failure
 	*/
 	var earlyExit = typeof options.earlyexit === 'undefined' ? false : options.earlyexit;
+
+	var processIdleTimeout = _.isFinite(+options.processIdleTimeout) ? +options.processIdleTimeout : 0;
 
 	var threadCompletionCount = 0;
 	var fileGroups;
@@ -128,7 +131,7 @@ module.exports.init = function ( options ) {
 				files = _.filter( files, function ( file ) {
 					return file.toLowerCase().indexOf( filterTests.toLowerCase() ) !== -1;
 				} );
-				threads = 1;
+				numProcesses = 1;
 			}
 
 			/*
@@ -138,19 +141,19 @@ module.exports.init = function ( options ) {
 				eventEmitter.emit( 'exit' );
 			}
 
-			if ( files.length < threads ) {
-				threads = files.length;
+			if ( files.length < numProcesses ) {
+				numProcesses = files.length;
 			}
 
 			if ( optionDebug > 0 || remoteDebug ) {
-				threads = 1;
+				numProcesses = 1;
 			}
 
 			/*
 				Group the files for thread parallelization
 			*/
 			fileGroups = _.groupBy( files, function ( val, index ) {
-				return index % threads;
+				return index % numProcesses;
 			} );
 
 			/*
@@ -212,7 +215,11 @@ module.exports.init = function ( options ) {
 				deleteFolderRecursive ( results );
 			}
 
-			console.log( 'Parallelising ' + files.length + ' test files on ' + threads + ' threads.\n' );
+			console.log( 'Parallelising ' + files.length + ' test files on ' + numProcesses + ' processes.\n' );
+			if(processIdleTimeout && !remoteDebug){
+				console.log( 'Processes that are idle for more than ' + processIdleTimeout + 'ms will be terminated.\n' );
+			}
+			var children = [];
 
 			_.forEach( fileGroups, function ( files, index ) {
 
@@ -232,56 +239,37 @@ module.exports.init = function ( options ) {
 					}
 				);
 
-				child.on( 'close', function ( code ) {
+				child.dead = false;
+				child.lastOutputTime = new Date().getTime();
+				child.logsWritten = false;
+				child.exitCode = null;
 
-					var mergedData;
+				children.push(child);
 
+				function onChildExit ( code ) {
+					child.dead = true;
+					child.exitCode = code;
 					if ( code !== 0 ) {
-
-						console.log( ( 'It broke, sorry. Threads aborted. Non-zero code (' + code + ') returned.' ).red );
-						writeLog( results, failFileName, stdoutStr );
-						if ( earlyExit ) {
-							eventEmitter.emit( 'exit' );
+						if(!child.logsWritten){
+							console.log('[PID '+child.pid+'] ' + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.' ).red );
+							writeLog( results, failFileName, stdoutStr );
+							child.logsWritten = true;
 						}
+						return;
 					}
-
-					threadCompletionCount += 1;
-
-					if ( threadCompletionCount === threads ) {
-						console.log( '\n All the threads have completed. \n'.grey );
-
-						loggedErrors.forEach( function ( error ) {
-							console.log( ( '== ' + error.file ).white );
-							console.log( error.msg.bold.red );
-						} );
-
-						console.log(
-							( 'Completed ' + ( failCount + passCount ) + ' tests in ' + Math.round( ( Date.now() - time ) / 1000 ) + ' seconds. ' ) +
-							( failCount + ' failed, ' ).bold.red +
-							( passCount + ' passed. ' ).bold.green );
-
-						if ( failCount === 0 ) {
-							exitCode = 0;
-						}
-
-						if ( createReport ) {
-
-							mergedData = concatData( dataPath, visualTestsPath, visualResultsPath );
-
-							copyReportTemplate(
-								mergedData,
-								reportPath,
-								createReport
-							);
-						}
-
-						eventEmitter.emit( 'exit' );
-					} else {
-						console.log( '\n A thread has completed. \n'.yellow );
+					if(!child.logsWritten){
+						console.log( '\n[PID '+child.pid+'] ' + 'A process has completed. \n'.yellow );
+						child.logsWritten = true;
 					}
-				} );
+				}
+
+				child.on( 'close', onChildExit);
+				child.on( 'exit', onChildExit);
+				child.on( 'disconnect', onChildExit);
 
 				child.stdout.on( 'data', function ( buf ) {
+					var outputTime = new Date().getTime();
+					child.lastOutputTime = outputTime;
 
 					var bufstr = String( buf );
 
@@ -311,8 +299,7 @@ module.exports.init = function ( options ) {
 
 							if ( earlyExit === true ) {
 								writeLog( results, failFileName, stdoutStr );
-								eventEmitter.emit( 'exit' );
-
+								kill(child.pid);
 								child.kill();
 							}
 
@@ -325,11 +312,10 @@ module.exports.init = function ( options ) {
 							console.log( line.bold.red );
 							if ( earlyExit === true ) {
 								writeLog( results, failFileName, stdoutStr );
-								eventEmitter.emit( 'exit' );
-
+								kill(child.pid);
 								child.kill();
 							}
-						} else if ( threads === 1 && optionDebug > 0 ) {
+						} else if ( numProcesses === 1 && optionDebug > 0 ) {
 							console.log( line.white );
 						}
 
@@ -354,18 +340,79 @@ module.exports.init = function ( options ) {
 				}
 			} );
 
-			eventEmitter.on( 'exit', function () {
-				isFinished = true;
-			} );
-
 			async.until(
 				function () {
-					return isFinished;
+					var timeNow = new Date().getTime();
+					var allDead = true;
+					var someDead = false;
+					var logMessage = '';
+
+					children.forEach(function (child) {
+						var idleTime = Math.abs(timeNow - child.lastOutputTime);
+						logMessage += (child.dead ? 'DEAD' : 'ALIVE') + ' (' + Math.ceil(idleTime/1000) + 's)\t';
+						if (processIdleTimeout && !child.dead && idleTime > processIdleTimeout) {
+							console.log('[PID '+child.pid+'] ' + 'The process has been idle for more than ' + processIdleTimeout + 'ms.');
+							if(!remoteDebug){
+								child.dead = true;
+								kill(child.pid);
+								child.kill();
+							}
+						}
+
+						allDead = allDead && child.dead;
+						someDead = someDead || child.dead;
+					});
+					//console.log(logMessage);
+
+					// wait until all children dead or early exit and some have died.
+					return (earlyExit && someDead) || allDead;
 				},
 				function ( callback ) {
 					setTimeout( callback, 100 );
 				},
 				function () {
+					var allZero = true;
+					var exitCodesOutputString = '';
+					children.forEach(function (child) {
+						exitCodesOutputString += '[PID ' + child.pid + '] ' + child.exitCode + '\t';
+						allZero = allZero && child.exitCode === 0;
+					});
+
+					if(allZero){
+						console.log( '\n All the threads have completed (all process exit codes 0). \n'.grey );
+					} else {
+						console.log('\nSome processes exited with errors:\n'.red);
+						console.log(exitCodesOutputString);
+
+					}
+
+					loggedErrors.forEach( function ( error ) {
+						console.log( ( '== ' + error.file ).white );
+						console.log( error.msg.bold.red );
+					} );
+
+					console.log(
+						( 'Completed ' + ( failCount + passCount ) + ' tests in ' + Math.round( ( Date.now() - time ) / 1000 ) + ' seconds. ' ) +
+						( failCount + ' failed, ' ).bold.red +
+						( passCount + ' passed. ' ).bold.green );
+
+
+
+					if (allZero && failCount === 0 ) {
+						exitCode = 0;
+					}
+
+					if ( createReport ) {
+
+						mergedData = concatData( dataPath, visualTestsPath, visualResultsPath );
+
+						copyReportTemplate(
+							mergedData,
+							reportPath,
+							createReport
+						);
+					}
+
 					if ( done ) {
 						done( exitCode, { passCount: passCount, failCount: failCount, loggedErrors: loggedErrors });
 					}

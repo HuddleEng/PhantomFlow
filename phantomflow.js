@@ -21,6 +21,109 @@ var wrench = require( 'wrench' );
 var async = require( 'async' );
 var kill = require( 'tree-kill' );
 
+
+var blessed = require('blessed')
+	, contrib = require('blessed-contrib')
+	, screen = blessed.screen();
+
+
+var grid = new contrib.grid({rows: 4, cols: 2, screen: screen});
+
+var donut = grid.set(0, 0, 1, 1, contrib.donut,
+	{
+		label: 'Completed tests',
+		radius: 10,
+		arcWidth: 3,
+		spacing: 2,
+		yPadding: 2,
+		data: [{label: 'Completed tests', percent: 0}]
+	});
+
+var box = grid.set(1, 0, 1, 1, blessed.box, {
+	content: 'Hello world'
+});
+
+var cliLog = grid.set(2, 0, 2, 1, contrib.log, {
+	fg: "green",
+	label: 'Output',
+	height: "50%",
+	tags: true,
+	border: {type: "line", fg: "cyan"} });
+
+var cliErrorLog = grid.set(2, 1, 2, 1, contrib.log, {
+	fg: "green",
+	label: 'Error Log',
+	height: "50%",
+	tags: true,
+	border: {type: "line", fg: "cyan"} });
+
+var table = grid.set(0,1,2,1, contrib.table, {
+	keys: true,
+	fg: 'white',
+	selectedFg: 'white',
+	selectedBg: 'blue',
+	interactive: true,
+	label: 'Test summary',
+	width: '100%',
+	height: '100%',
+	border: {type: "line", fg: "cyan"},
+	columnSpacing: 3,
+	columnWidth: [50, 12]
+});
+
+
+table.focus();
+table.setData({ headers: ['Test file', 'Status'], data: [['', '']]});
+
+
+screen.key(['escape', 'q', 'C-c'], function(ch, key) {
+	return process.exit(0);
+});
+
+
+
+screen.render()
+
+function logWithLogger(args, logger){
+	_.toArray(args).forEach(function (arg) {
+		var lines = arg.split('\n');
+		logger.log(_.head(lines));
+		_.tail(lines).forEach(function (line) {
+			logger.log('  ' + line);
+		});
+	});
+}
+
+function log(){
+	logWithLogger(arguments, cliLog);
+}
+
+function errorLog(){
+	logWithLogger(arguments, cliErrorLog);
+}
+
+function updateTable(statuses, passCount, failCount){
+	var dataArray = [];
+	_.forEach(statuses, function(status, fileName) {
+		if(status === 'PENDING'){
+			dataArray.push([fileName.blue, status.blue]);
+		} else if (status === 'RUNNING') {
+			dataArray.push([fileName.yellow, status.yellow]);
+		} else if (status === 'SUCCESS') {
+			dataArray.push([fileName.green, status.green]);
+		} else if (status === 'FAIL') {
+			dataArray.push([fileName.red, status.red]);
+		} else {
+			dataArray.push([fileName, status]);
+		}
+	});
+
+	table.setData({ headers: ['Test file', 'Status'], data: dataArray.reverse()});
+	box.setContent(passCount + ' succesful and ' + failCount + ' failed assertions so far.');
+	_.throttle(screen.render, 500);
+
+}
+
 var optionDebug;
 
 module.exports = {};
@@ -77,8 +180,8 @@ module.exports.init = function ( options ) {
 	optionDebug = parseInt( options.debug, 10 ) < 3 ? parseInt( options.debug, 10 ) : void 0;
 
 	if ( earlyExit ) {
-		console.log( 'The earlyExit parameter is set to true, PhantomFlow will abort of the first failure. \n'.yellow );
-		console.log( 'If a failure occurs, a report will not be generated. \n'.yellow );
+		log( 'The earlyExit parameter is set to true, PhantomFlow will abort of the first failure. \n'.yellow );
+		log( 'If a failure occurs, a report will not be generated. \n'.yellow );
 	}
 
 	return {
@@ -136,12 +239,13 @@ module.exports.init = function ( options ) {
 			/*
 				Stop if there are no tests
 			*/
-			if ( files.length === 0 ) {
+			var numTests = files.length;
+			if ( numTests === 0 ) {
 				eventEmitter.emit( 'exit' );
 			}
 
-			if ( files.length < numProcesses ) {
-				numProcesses = files.length;
+			if ( numTests < numProcesses ) {
+				numProcesses = numTests;
 			}
 
 			if ( optionDebug > 0 || remoteDebug ) {
@@ -207,13 +311,20 @@ module.exports.init = function ( options ) {
 				deleteFolderRecursive ( results );
 			}
 
-			console.log( 'Parallelising ' + files.length + ' test files on ' + numProcesses + ' processes.\n' );
+			log( 'Parallelising ' + numTests + ' test files on ' + numProcesses + ' processes.\n' );
 			if(processIdleTimeout && !remoteDebug){
-				console.log( 'Processes that are idle for more than ' + processIdleTimeout + 'ms will be terminated.\n' );
+				log( 'Processes that are idle for more than ' + processIdleTimeout + 'ms will be terminated.\n' );
 			}
+			var testStatuses = {};
+			_.forEach(files, function(file){
+				testStatuses[file] = 'PENDING';
+			});
+			updateTable(testStatuses, passCount, failCount);
+
 			var children = [];
 			var childrenGraveyard = [];
 
+			var allGreen = true;
 			function pickUpJob(){
 				var fileIndex = files.length;
 				if( !fileIndex || children.length >= numProcesses){
@@ -222,7 +333,7 @@ module.exports.init = function ( options ) {
 
 				var file = files.pop();
 
-				console.log('Picking up job: '.green + file);
+				log('Picking up job: '.green + file);
 				var child = cp.spawn(
 					changeSlashes( casperPath ),
 					args.slice( 0 ).concat( [ '--flowtests=' + changeSlashes( file ) ] ), {
@@ -238,26 +349,41 @@ module.exports.init = function ( options ) {
 				child.testFile = file;
 				child.failFileName = 'error_' + fileIndex + '.log';
 				child.fileIndex = fileIndex;
-				child.logPrefix = '[PID '+child.pid+'] [Test file: ' + child.testFile + '] ';
+				child.logPrefix = '[' + child.testFile + '] ';
 				child.stdoutStr = '';
-
+				child.numFails = 0;
+				child.numPasses = 0;
 				children.push(child);
+
+				testStatuses[child.testFile] = 'RUNNING';
 
 				function onChildExit ( code ) {
 					child.dead = true;
 					child.exitCode = code;
-					if ( code !== 0 ) {
-						if(!child.logsWritten){
-							console.log(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.' ).red );
-							writeLog( results, child.failFileName, child.stdoutStr );
-							child.logsWritten = true;
+
+					if(child.logsWritten) return;
+					child.logsWritten = true;
+
+					allGreen = allGreen && code === 0 && child.numFails === 0;
+
+					donut.setData([
+ 						{
+							percent: 100 - Math.ceil(files.length / numTests * 100),
+							label: files.length + ' remaining ('+numTests+' total)',
+							color: allGreen ? 'green' : 'red'
 						}
+					]);
+
+					if ( code !== 0 ) {
+						log(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.' ).red );
+						errorLog(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.\n' ).red );
+						writeLog( results, child.failFileName, child.stdoutStr );
+						testStatuses[child.testFile] = 'FAIL';
 						return;
 					}
-					if(!child.logsWritten){
-						console.log( '\n' + child.logPrefix + 'A process has completed. \n'.yellow );
-						child.logsWritten = true;
-					}
+
+					testStatuses[child.testFile] = child.numFails > 0 ? 'FAIL' : 'SUCCESS';
+					log( '\n' + child.logPrefix + 'process has completed. \n'.yellow );
 				}
 
 				child.on( 'close', onChildExit);
@@ -271,7 +397,8 @@ module.exports.init = function ( options ) {
 					var bufstr = String( buf );
 
 					if ( /^execvp\(\)/.test( buf ) ) {
-						console.log( 'Failed to start CasperJS' );
+						log( child.logPrefix + 'Failed to start CasperJS' );
+						errorLog( child.logPrefix + '\n  Failed to start CasperJS\n' );
 					}
 
 					if ( /Error:/.test( bufstr ) ) {
@@ -281,7 +408,9 @@ module.exports.init = function ( options ) {
 					bufstr.split( /\n/g ).forEach( function ( line ) {
 
 						if ( /FAIL|\[PhantomCSS\] Screenshot capture failed/.test( line ) ) {
-							console.log( line.bold.red );
+							log( line.bold.red );
+							errorLog(child.logPrefix + '\n' + line.bold.red);
+							child.numFails++;
 
 							loggedErrors.push( {
 								file: child.testFile,
@@ -298,18 +427,20 @@ module.exports.init = function ( options ) {
 
 						} else if ( /PASS/.test( line ) ) {
 							passCount++;
-							console.log( line.green );
+							child.numPasses++;
+							log( line.green );
 						} else if ( /DEBUG/.test( line ) ) {
-							console.log( ( '\n' + line.replace( /DEBUG/, '' ) + '\n' ).yellow );
+							log( ( '\n' + line.replace( /DEBUG/, '' ) + '\n' ).yellow );
 						} else if ( child.hasErrored ) {
-							console.log( line.bold.red );
+							log( line.bold.red );
+							errorLog(child.logPrefix + '\n  '+line.bold.red +'\n');
 							if ( earlyExit === true ) {
 								writeLog( results, child.failFileName, child.stdoutStr );
 								kill(child.pid);
 								child.kill();
 							}
 						} else if ( numProcesses === 1 && optionDebug > 0 ) {
-							console.log( line.white );
+							log( line.white );
 						}
 
 						child.stdoutStr += line;
@@ -319,17 +450,17 @@ module.exports.init = function ( options ) {
 			}
 
 			if ( remoteDebug ) {
-				console.log( "Remote debugging is enabled.  Web Inspector interface will show shortly.".bold.green );
-				console.log( "Please use ctrl+c to escape\n".bold.green );
-				console.log( "https://github.com/ariya/phantomjs/wiki/Troubleshooting#remote-debugging\n".underline.bold.grey );
+				log( "Remote debugging is enabled.  Web Inspector interface will show shortly.".bold.green );
+				log( "Please use ctrl+c to escape\n".bold.green );
+				log( "https://github.com/ariya/phantomjs/wiki/Troubleshooting#remote-debugging\n".underline.bold.grey );
 
 				if ( !remoteDebugAutoStart ) {
-					console.log( "Click 'about:blank' to see the PhantomJS Inspector." );
-					console.log( "To start, enter the '__run()' command in the Web Inspector Console.\n" );
+					log( "Click 'about:blank' to see the PhantomJS Inspector." );
+					log( "To start, enter the '__run()' command in the Web Inspector Console.\n" );
 				}
 
 				setTimeout( function () {
-					//console.log(("If Safari or Chrome is not your default browser, please open http://localhost:"+remoteDebugPort+" in a compatible browser.\n").bold.yellow);
+					//log(("If Safari or Chrome is not your default browser, please open http://localhost:"+remoteDebugPort+" in a compatible browser.\n").bold.yellow);
 					open( 'http://localhost:' + remoteDebugPort, "chrome" );
 				}, 3000 );
 			}
@@ -347,7 +478,8 @@ module.exports.init = function ( options ) {
 						var idleTime = Math.abs(timeNow - child.lastOutputTime);
 						logMessage += (child.dead ? 'DEAD'.red : 'ALIVE'.green) + ' (' + Math.ceil(idleTime/1000) + 's)\t';
 						if (processIdleTimeout && !child.dead && idleTime > processIdleTimeout) {
-							console.log('[PID '+child.pid+'] ' + 'The process has been idle for more than ' + processIdleTimeout + 'ms.');
+							log('[PID '+child.pid+'] ' + 'The process has been idle for more than ' + processIdleTimeout + 'ms.');
+							cliErrorLog(child.logPrefix + '\n  The process has been idle for more than ' + processIdleTimeout + 'ms.\n');
 							if(!remoteDebug){
 								child.dead = true;
 								kill(child.pid);
@@ -366,8 +498,10 @@ module.exports.init = function ( options ) {
 					children = _.difference(children, deadChildren); // remove dead children
 					childrenGraveyard = childrenGraveyard.concat(deadChildren);
 					pickUpJob();
+					updateTable(testStatuses, passCount, failCount);
 
-					//console.log(logMessage);
+
+					//log(logMessage);
 
 					// wait until all children dead or early exit and some have died.
 					return (earlyExit && someDead) || (testsDone && allDead);
@@ -384,19 +518,19 @@ module.exports.init = function ( options ) {
 					});
 
 					if(allZero){
-						console.log( '\n All the threads have completed (all process exit codes 0). \n'.grey );
-						console.log(exitCodesOutputString);
+						log( '\n All the threads have completed (all process exit codes 0). \n'.grey );
+						log(exitCodesOutputString);
 					} else {
-						console.log('\nSome processes exited with errors:\n'.red);
-						console.log(exitCodesOutputString);
+						log('\nSome processes exited with errors:\n'.red);
+						log(exitCodesOutputString);
 					}
 
 					loggedErrors.forEach( function ( error ) {
-						console.log( ( '== ' + error.file ).white );
-						console.log( error.msg.bold.red );
+						log( ( '== ' + error.file ).white );
+						log( error.msg.bold.red );
 					} );
 
-					console.log(
+					log(
 						( 'Completed ' + ( failCount + passCount ) + ' tests in ' + Math.round( ( Date.now() - time ) / 1000 ) + ' seconds. ' ) +
 						( failCount + ' failed, ' ).bold.red +
 						( passCount + ' passed. ' ).bold.green );
@@ -417,6 +551,8 @@ module.exports.init = function ( options ) {
 							createReport
 						);
 					}
+
+					screen.render();
 
 					if ( done ) {
 						done( exitCode, { passCount: passCount, failCount: failCount, loggedErrors: loggedErrors });
@@ -510,7 +646,7 @@ function dataTransform( key, value, imagePath, imageResultPath ) {
 			return obj;
 		} else {
 			if ( optionDebug > 0 ) {
-				console.log( ( "Expected file does not exist! " + value ).grey );
+				log( ( "Expected file does not exist! " + value ).grey );
 			}
 			return null;
 		}
@@ -521,7 +657,7 @@ function dataTransform( key, value, imagePath, imageResultPath ) {
 
 function showReport( dir, port, paths ) {
 	if ( isDir( dir ) ) {
-		console.log( "Please use ctrl+c to escape".bold.green );
+		log( "Please use ctrl+c to escape".bold.green );
 		var server = connect( connect.static( dir ) );
 
 		server.use( '/rebase', reqHandler( paths ) ).listen( port );
@@ -529,7 +665,7 @@ function showReport( dir, port, paths ) {
 		open( 'http://localhost:' + port );
 		return false;
 	} else {
-		console.log( "A report hasn't been generated.  Maybe you haven't set the createReport option?".bold.yellow );
+		log( "A report hasn't been generated.  Maybe you haven't set the createReport option?".bold.yellow );
 		return true;
 	}
 }
@@ -547,7 +683,7 @@ function reqHandler( paths ) {
 					resImage = changeSlashes( paths.res + getImageResultDiffFromSrc( image ) );
 
 					if ( isFile( origImage ) && isFile( resImage ) ) {
-						console.log( ( 'Rebasing... ' + origImage ).bold.yellow );
+						log( ( 'Rebasing... ' + origImage ).bold.yellow );
 						deleteFile( origImage );
 						moveFile( resImage, origImage );
 					}
@@ -564,7 +700,7 @@ function reqHandler( paths ) {
 				'Content-Type': 'text/plain',
 				'Content-Length': 0
 			} );
-			console.log( ( 'UI can make POST for image rebase' ).bold.yellow );
+			log( ( 'UI can make POST for image rebase' ).bold.yellow );
 			res.end();
 		} else {
 			next();
@@ -594,7 +730,7 @@ function writeLog( resultsDir, filename, log ) {
 
 function writeLogFile( path, log ) {
 	fs.writeFile( path, log, function () {
-		console.log( ( " Please take a look at the error log for more info '" + path + "'" ).bold.yellow );
+		log( ( " Please take a look at the error log for more info '" + path + "'" ).bold.yellow );
 	} );
 }
 
@@ -614,7 +750,7 @@ function deleteFolderRecursive( path ) {
 		try {
 			fs.rmdirSync( path );
 		} catch ( e ) {
-			console.log( ( 'Could not remove ' + path + ' is there a file lock?' ).bold.red );
+			log( ( 'Could not remove ' + path + ' is there a file lock?' ).bold.red );
 		}
 	}
 }
@@ -670,11 +806,11 @@ function getCasperPath() {
 	if ( fs.existsSync( phantomjs.path ) ) {
 		process.env[ "PHANTOMJS_EXECUTABLE" ] = phantomjs.path;
 	} else {
-		console.log( "PhantomJS is not installed? Try `npm install`".bold.red );
+		log( "PhantomJS is not installed? Try `npm install`".bold.red );
 	}
 
 	if ( !fs.existsSync( casperPath ) ) {
-		console.log( "CasperJS is not installed? Try `npm install`".bold.red );
+		log( "CasperJS is not installed? Try `npm install`".bold.red );
 	}
 
 	return casperPath;

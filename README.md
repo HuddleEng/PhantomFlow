@@ -30,6 +30,10 @@ PhantomFlow also comes as grunt plugin! [grunt-phantomflow](http://github.com/Hu
 * `node test/test.js` - First run will create visual test baslines with PhantomCSS
 * `node test/test.js` - Second run will compare baseline visuals with the latest screenshots. This'll pass because there have been no changes.
 * `node test/test.js report` - An optional step to load the Decision tree visualisation into your Web browser
+* `node test/test.js dashboard` - Run the tests in dashboard mode to see test progress (useful for many parallelised tests)
+
+![PhantomFlow Dashboard mode: see parallel test run progress](https://raw.githubusercontent.com/Huddle/PhantomFlow/master/flow-dashboard.gif)
+
 
 Mac OSX users should be aware that PhantomJS doesn't load the FontAwesome glyths used in the test suite, I don't understand why.  I fixed this locally by downloading FontAwesome and double clicking on the .otf file to install the font.
 

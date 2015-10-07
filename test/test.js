@@ -6,6 +6,7 @@ var showReport;
 var filterTest;
 var debugMode;
 var remoteDebug;
+var dashboard;
 
 process.argv.forEach(function(arg, i){
 	if(arg === 'report'){
@@ -20,6 +21,9 @@ process.argv.forEach(function(arg, i){
 	if(/^test=/.test(arg)){
 		filterTest = arg.split('=')[1];
 	}
+	if(/^dashboard/.test(arg)){
+		dashboard = true;
+	}
 });
 
 var flow = require('../phantomflow').init({
@@ -27,7 +31,8 @@ var flow = require('../phantomflow').init({
 	debug: debugMode ? 2 : undefined,
 	createReport: true,
 	test: filterTest,
-	remoteDebug: remoteDebug
+	remoteDebug: remoteDebug,
+	dashboard: dashboard
 });
 
 if(showReport){

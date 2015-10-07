@@ -57,12 +57,14 @@ module.exports.init = function ( options ) {
 	var log = console.log;
 	var errorLog = console.error;
 	var updateTableAndStats = _.noop;
+	var dashboardDone = _.noop;
 	if(options.dashboard){
 		var dashboardLogger = require('./dashboard-logger');
 		dashboardLogger.init();
 		log = dashboardLogger.log;
 		errorLog = dashboardLogger.error;
 		updateTableAndStats = dashboardLogger.update;
+		dashboardDone = dashboardLogger.finish;
 	}
 
 	var processIdleTimeout = _.isFinite(+options.processIdleTimeout) ? +options.processIdleTimeout : 0;
@@ -413,8 +415,7 @@ module.exports.init = function ( options ) {
 					setTimeout( callback, 100 );
 				},
 				function () {
-					screen.render();
-					screen.destroy();
+					dashboardDone();
 
 					var allZero = true;
 					var exitCodesOutputString = '';

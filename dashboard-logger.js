@@ -125,5 +125,10 @@ module.exports = {
     log: log,
     error: errorLog,
 
-    update: updateTableAndStats
+    update: updateTableAndStats,
+
+    finish: function () {
+        screen.render();
+        screen.destroy();
+    }
 }

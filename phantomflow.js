@@ -384,7 +384,7 @@ module.exports.init = function ( options ) {
 						logMessage += (child.dead ? 'DEAD'.red : 'ALIVE'.green) + ' (' + Math.ceil(idleTime/1000) + 's)\t';
 						if (processIdleTimeout && !child.dead && idleTime > processIdleTimeout) {
 							log('[PID '+child.pid+'] ' + 'The process has been idle for more than ' + processIdleTimeout + 'ms.');
-							cliErrorLog(child.logPrefix + '\n  The process has been idle for more than ' + processIdleTimeout + 'ms.\n');
+							errorLog(child.logPrefix + '\n  The process has been idle for more than ' + processIdleTimeout + 'ms.\n');
 							if(!remoteDebug){
 								child.dead = true;
 								kill(child.pid);

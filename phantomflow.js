@@ -21,117 +21,6 @@ var wrench = require( 'wrench' );
 var async = require( 'async' );
 var kill = require( 'tree-kill' );
 
-
-var blessed = require('blessed')
-	, contrib = require('blessed-contrib')
-	, screen = blessed.screen();
-
-
-var grid = new contrib.grid({rows: 4, cols: 2, screen: screen});
-
-var donut = grid.set(0, 0, 1, 1, contrib.donut,
-	{
-		label: 'Completed tests',
-		radius: 10,
-		arcWidth: 3,
-		spacing: 2,
-		yPadding: 2,
-		data: [{label: 'Completed tests', percent: 0}]
-	});
-
-var box = grid.set(1, 0, 1, 1, blessed.box, {
-	content: 'Hello world'
-});
-
-var cliLog = grid.set(2, 0, 2, 1, contrib.log, {
-	fg: "green",
-	label: 'Output',
-	height: "50%",
-	tags: true,
-	border: {type: "line", fg: "cyan"} });
-
-var cliErrorLog = grid.set(2, 1, 2, 1, contrib.log, {
-	fg: "green",
-	label: 'Error Log',
-	height: "50%",
-	tags: true,
-	border: {type: "line", fg: "cyan"} });
-
-var table = grid.set(0,1,2,1, contrib.table, {
-	keys: true,
-	fg: 'white',
-	selectedFg: 'white',
-	selectedBg: 'blue',
-	interactive: true,
-	label: 'Test summary',
-	width: '100%',
-	height: '100%',
-	border: {type: "line", fg: "cyan"},
-	columnSpacing: 3,
-	columnWidth: [50, 12]
-});
-
-
-table.focus();
-table.setData({ headers: ['Test file', 'Status'], data: [['', '']]});
-
-
-screen.key(['escape', 'q', 'C-c'], function(ch, key) {
-	return process.exit(0);
-});
-
-
-
-screen.render()
-
-function logWithLogger(args, logger){
-	_.toArray(args).forEach(function (arg) {
-		var lines = arg.split('\n');
-		logger.log(_.head(lines));
-		_.tail(lines).forEach(function (line) {
-			logger.log('  ' + line);
-		});
-	});
-}
-
-function log(){
-	logWithLogger(arguments, cliLog);
-}
-
-function errorLog(){
-	logWithLogger(arguments, cliErrorLog);
-}
-
-function updateTableAndStats(statuses, passCount, failCount, numCompleted, numTests, allGreen){
-	var dataArray = [];
-	_.forEach(statuses, function(status, fileName) {
-		if(status === 'PENDING'){
-			dataArray.push([fileName.blue, status.blue]);
-		} else if (status === 'RUNNING') {
-			dataArray.push([fileName.yellow, status.yellow]);
-		} else if (status === 'SUCCESS') {
-			dataArray.push([fileName.green, status.green]);
-		} else if (status === 'FAIL') {
-			dataArray.push([fileName.red, status.red]);
-		} else {
-			dataArray.push([fileName, status]);
-		}
-	});
-
-	table.setData({ headers: ['Test file', 'Status'], data: dataArray.reverse()});
-	box.setContent(passCount + ' succesful and ' + failCount + ' failed assertions so far.');
-	donut.setData([
-		{
-			percent: 100 - Math.ceil( (numTests - numCompleted) / numTests * 100),
-			label: (numTests - numCompleted) + ' remaining ('+numTests+' total)',
-			color: allGreen ? 'green' : 'red'
-		}
-	]);
-
-	_.throttle(screen.render, 500);
-
-}
-
 var optionDebug;
 
 module.exports = {};
@@ -163,6 +52,18 @@ module.exports.init = function ( options ) {
 		Set to false if you do not want the tests to return on the first failure
 	*/
 	var earlyExit = typeof options.earlyexit === 'undefined' ? false : options.earlyexit;
+
+	// Dashboard mode?
+	var log = console.log;
+	var errorLog = console.error;
+	var updateTableAndStats = _.noop;
+	if(options.dashboard){
+		var dashboardLogger = require('./dashboard-logger');
+		dashboardLogger.init();
+		log = dashboardLogger.log;
+		errorLog = dashboardLogger.error;
+		updateTableAndStats = dashboardLogger.update;
+	}
 
 	var processIdleTimeout = _.isFinite(+options.processIdleTimeout) ? +options.processIdleTimeout : 0;
 
@@ -325,7 +226,7 @@ module.exports.init = function ( options ) {
 			}
 			var testStatuses = {};
 			_.forEach(files, function(file){
-				testStatuses[file] = 'PENDING';
+				testStatuses[file] = {testStatus: 'PENDING', numPasses: 0, numFails: 0};
 			});
 			var children = [];
 
@@ -363,7 +264,8 @@ module.exports.init = function ( options ) {
 				child.numPasses = 0;
 				children.push(child);
 
-				testStatuses[child.testFile] = 'RUNNING';
+				testStatuses[child.testFile] = child;
+				child.testStatus = 'RUNNING';
 
 				function onChildExit ( code ) {
 					child.dead = true;
@@ -379,11 +281,11 @@ module.exports.init = function ( options ) {
 						log(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.' ).red );
 						errorLog(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.\n' ).red );
 						writeLog( results, child.failFileName, child.stdoutStr );
-						testStatuses[child.testFile] = 'FAIL';
+						child.testStatus = 'FAIL';
 						return;
 					}
 
-					testStatuses[child.testFile] = child.numFails > 0 ? 'FAIL' : 'SUCCESS';
+					child.testStatus = child.numFails > 0 ? 'FAIL' : 'SUCCESS';
 					log( '\n' + child.logPrefix + 'process has completed. \n'.yellow );
 				}
 
@@ -517,7 +419,7 @@ module.exports.init = function ( options ) {
 					var allZero = true;
 					var exitCodesOutputString = '';
 					childrenGraveyard.forEach(function (child) {
-						exitCodesOutputString += child.logPrefix + (child.exitCode === 0 ? 'OK (exit code 0)'.green : ('Fail with code ' + child.exitCode).red)+ '\n';
+						exitCodesOutputString +=  child.logPrefix + (child.exitCode === 0 ? '[exit code 0]'.green : ('[exit code ' + child.exitCode + ']').red) + ' ' + (child.numPasses + " passes").green + ', ' + (child.numFails + " fails ").red + '\n';
 						allZero = allZero && child.exitCode === 0;
 					});
 

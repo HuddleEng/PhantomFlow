@@ -102,7 +102,7 @@ function errorLog(){
 	logWithLogger(arguments, cliErrorLog);
 }
 
-function updateTable(statuses, passCount, failCount){
+function updateTableAndStats(statuses, passCount, failCount, numCompleted, numTests, allGreen){
 	var dataArray = [];
 	_.forEach(statuses, function(status, fileName) {
 		if(status === 'PENDING'){
@@ -120,6 +120,14 @@ function updateTable(statuses, passCount, failCount){
 
 	table.setData({ headers: ['Test file', 'Status'], data: dataArray.reverse()});
 	box.setContent(passCount + ' succesful and ' + failCount + ' failed assertions so far.');
+	donut.setData([
+		{
+			percent: 100 - Math.ceil( (numTests - numCompleted) / numTests * 100),
+			label: (numTests - numCompleted) + ' remaining ('+numTests+' total)',
+			color: allGreen ? 'green' : 'red'
+		}
+	]);
+
 	_.throttle(screen.render, 500);
 
 }
@@ -319,12 +327,12 @@ module.exports.init = function ( options ) {
 			_.forEach(files, function(file){
 				testStatuses[file] = 'PENDING';
 			});
-			updateTable(testStatuses, passCount, failCount);
-
 			var children = [];
-			var childrenGraveyard = [];
 
+			var childrenGraveyard = [];
 			var allGreen = true;
+
+			updateTableAndStats(testStatuses, passCount, failCount, childrenGraveyard.length, numTests, allGreen);
 			function pickUpJob(){
 				var fileIndex = files.length;
 				if( !fileIndex || children.length >= numProcesses){
@@ -366,13 +374,6 @@ module.exports.init = function ( options ) {
 
 					allGreen = allGreen && code === 0 && child.numFails === 0;
 
-					donut.setData([
- 						{
-							percent: 100 - Math.ceil(files.length / numTests * 100),
-							label: files.length + ' remaining ('+numTests+' total)',
-							color: allGreen ? 'green' : 'red'
-						}
-					]);
 
 					if ( code !== 0 ) {
 						log(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.' ).red );
@@ -498,7 +499,7 @@ module.exports.init = function ( options ) {
 					children = _.difference(children, deadChildren); // remove dead children
 					childrenGraveyard = childrenGraveyard.concat(deadChildren);
 					pickUpJob();
-					updateTable(testStatuses, passCount, failCount);
+					updateTableAndStats(testStatuses, passCount, failCount, childrenGraveyard.length, numTests, allGreen);
 
 
 					//log(logMessage);
@@ -510,6 +511,9 @@ module.exports.init = function ( options ) {
 					setTimeout( callback, 100 );
 				},
 				function () {
+					screen.render();
+					screen.destroy();
+
 					var allZero = true;
 					var exitCodesOutputString = '';
 					childrenGraveyard.forEach(function (child) {
@@ -518,22 +522,22 @@ module.exports.init = function ( options ) {
 					});
 
 					if(allZero){
-						log( '\n All the threads have completed (all process exit codes 0). \n'.grey );
-						log(exitCodesOutputString);
+						console.log( '\n All the threads have completed (all process exit codes 0). \n'.grey );
+						console.log(exitCodesOutputString);
 					} else {
-						log('\nSome processes exited with errors:\n'.red);
-						log(exitCodesOutputString);
+						console.loglog('\nSome processes exited with errors:\n'.red);
+						console.log(exitCodesOutputString);
 					}
 
 					loggedErrors.forEach( function ( error ) {
-						log( ( '== ' + error.file ).white );
-						log( error.msg.bold.red );
+						console.log( ( '== ' + error.file ).white );
+						console.log( error.msg.bold.red );
 					} );
 
-					log(
-						( 'Completed ' + ( failCount + passCount ) + ' tests in ' + Math.round( ( Date.now() - time ) / 1000 ) + ' seconds. ' ) +
-						( failCount + ' failed, ' ).bold.red +
-						( passCount + ' passed. ' ).bold.green );
+					console.log(
+						( 'Completed ' + ( failCount + passCount ) + ' assertions in ' + Math.round( ( Date.now() - time ) / 1000 ) + ' seconds. ' ) +
+						( failCount + ' assertions failed, ' ).bold.red +
+						( passCount + ' assertions passed. ' ).bold.green );
 
 
 
@@ -552,7 +556,6 @@ module.exports.init = function ( options ) {
 						);
 					}
 
-					screen.render();
 
 					if ( done ) {
 						done( exitCode, { passCount: passCount, failCount: failCount, loggedErrors: loggedErrors });

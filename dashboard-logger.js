@@ -18,7 +18,7 @@ function errorLog(){
     logWithLogger(arguments, cliErrorLog);
 }
 
-var cliLog, cliErrorLog, table, box, donut, screen;
+var cliLog, cliErrorLog, table, box, gauge, screen, confirmation;
 var tableHeaders = ['Test file', 'Status'];
 
 function updateTableAndStats(statuses, passCount, failCount, numCompleted, numTests, allGreen){
@@ -45,13 +45,7 @@ function updateTableAndStats(statuses, passCount, failCount, numCompleted, numTe
 
     table.setData({ headers: tableHeaders, data: dataArray.reverse()});
     box.setContent(passCount + ' succesful and ' + failCount + ' failed assertions so far.');
-    donut.setData([
-        {
-            percent: 100 - Math.ceil( (numTests - numCompleted) / numTests * 100),
-            label: (numTests - numCompleted) + ' remaining ('+numTests+' total)',
-            color: allGreen ? 'green' : 'red'
-        }
-    ]);
+    gauge.setStack([{percent: 100 - Math.ceil( (numTests - numCompleted) / numTests * 100), stroke: 'green'}, {percent: 0, stroke: 'red'}]);
 
     _.throttle(screen.render, 500);
 
@@ -68,15 +62,11 @@ module.exports = {
 
         var grid = new contrib.grid({rows: 4, cols: 2, screen: screen});
 
-        donut = grid.set(0, 0, 1, 1, contrib.donut,
+        gauge = grid.set(0, 0, 1, 1, contrib.gauge,
             {
-                label: 'Completed tests',
-                radius: 10,
-                arcWidth: 3,
-                spacing: 2,
-                yPadding: 2,
-                data: [{label: ' ', percent: 0}]
+                label: 'Completed tests'
             });
+        gauge.setStack([0,0]);
 
         box = grid.set(1, 0, 1, 1, blessed.box, {
             content: ' '
@@ -115,9 +105,35 @@ module.exports = {
         table.setData({ headers: tableHeaders, data: [['', '']]});
 
 
+        confirmation = blessed.message({
+            top: 'center',
+            left: 'center',
+            width: 'shrink',
+            height: 'shrink',
+            tags: true,
+            hidden: true,
+            border: {
+                type: 'line'
+            },
+            style: {
+                fg: 'white',
+                bg: 'magenta',
+                border: {
+                    fg: '#f0f0f0'
+                },
+                hover: {
+                    bg: 'green'
+                }
+            }
+        });
+
+        screen.append(confirmation);
+
         screen.key(['escape', 'q', 'C-c'], function(ch, key) {
             return process.exit(0);
         });
+
+
 
         screen.render();
     },
@@ -128,7 +144,8 @@ module.exports = {
     update: updateTableAndStats,
 
     finish: function () {
+        confirmation.display('All tests have completed. Hit enter to dismiss this message. Hit q or C-c to quit.', 0);
+        confirmation.focus();
         screen.render();
-        screen.destroy();
     }
 }

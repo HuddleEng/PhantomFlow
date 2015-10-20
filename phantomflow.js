@@ -19,9 +19,9 @@ var glob = require( "glob" );
 var cp = require( 'child_process' );
 var wrench = require( 'wrench' );
 var async = require( 'async' );
-var kill = require( 'tree-kill' );
-
 var optionDebug;
+
+var grunt_fatal_original;
 
 module.exports = {};
 
@@ -65,6 +65,16 @@ module.exports.init = function ( options ) {
 		errorLog = dashboardLogger.error;
 		updateTableAndStats = dashboardLogger.update;
 		dashboardDone = dashboardLogger.finish;
+
+		function handleException(e){
+			errorLog('[PhantomFlow Error]\n' + e.toString() + ' ' + (e.stack ?  e.stack : ''));
+		}
+
+		process.on('uncaughtException', handleException);
+		if(options.grunt && options.grunt.fail){
+			grunt_fatal_original = options.grunt.fail.fatal;
+			options.grunt.fail.fatal = handleException
+		}
 	}
 
 	var processIdleTimeout = _.isFinite(+options.processIdleTimeout) ? +options.processIdleTimeout : 0;
@@ -282,7 +292,7 @@ module.exports.init = function ( options ) {
 					if ( code !== 0 ) {
 						log(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.' ).red );
 						errorLog(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.\n' ).red );
-						writeLog( results, child.failFileName, child.stdoutStr );
+						writeLog( results, child.failFileName, child.stdoutStr, log );
 						child.testStatus = 'FAIL';
 						return;
 					}
@@ -325,8 +335,7 @@ module.exports.init = function ( options ) {
 							failCount++;
 
 							if ( earlyExit === true ) {
-								writeLog( results, child.failFileName, child.stdoutStr );
-								kill(child.pid);
+								writeLog( results, child.failFileName, child.stdoutStr, log );
 								child.kill();
 							}
 
@@ -340,8 +349,7 @@ module.exports.init = function ( options ) {
 							log( line.bold.red );
 							errorLog(child.logPrefix + '\n  '+line.bold.red +'\n');
 							if ( earlyExit === true ) {
-								writeLog( results, child.failFileName, child.stdoutStr );
-								kill(child.pid);
+								writeLog( results, child.failFileName, child.stdoutStr, log );
 								child.kill();
 							}
 						} else if ( numProcesses === 1 && optionDebug > 0 ) {
@@ -387,7 +395,6 @@ module.exports.init = function ( options ) {
 							errorLog(child.logPrefix + '\n  The process has been idle for more than ' + processIdleTimeout + 'ms.\n');
 							if(!remoteDebug){
 								child.dead = true;
-								kill(child.pid);
 								child.kill();
 							}
 						}
@@ -415,7 +422,18 @@ module.exports.init = function ( options ) {
 					setTimeout( callback, 100 );
 				},
 				function () {
+					// restore grunt fatal
+					if(options.grunt && options.grunt.fail && options.grunt.fail.fatal && grunt_fatal_original){
+						options.grunt.fail.fatal = grunt_fatal_original;
+					}
 					dashboardDone();
+
+					if(options.dashboard){
+						// keep process alive
+						process.stdin.resume();
+						dashboardDone();
+						return;
+					}
 
 					var allZero = true;
 					var exitCodesOutputString = '';
@@ -622,21 +640,21 @@ function changeSlashes( str ) {
 	return path.normalize( str ).replace( /\\/g, '/' );
 }
 
-function writeLog( resultsDir, filename, log ) {
+function writeLog( resultsDir, filename, log, logger ) {
 	var path = resultsDir + '/log/';
 
 	if ( !isDir( path ) ) {
 		fs.mkdir( path, function () {
-			writeLogFile( path + filename, log );
+			writeLogFile( path + filename, log, logger );
 		} );
 	} else {
-		writeLogFile( path + filename, log );
+		writeLogFile( path + filename, log, logger );
 	}
 }
 
-function writeLogFile( path, log ) {
+function writeLogFile( path, log, logger ) {
 	fs.writeFile( path, log, function () {
-		log( ( " Please take a look at the error log for more info '" + path + "'" ).bold.yellow );
+		logger( ( " Please take a look at the error log for more info '" + path + "'" ).bold.yellow );
 	} );
 }
 
@@ -700,12 +718,12 @@ function getCasperPath() {
 		phantomjsPath = 'phantomjs';
 		casperPath = path.resolve( __dirname, '..', 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
 	}
-	
+
 	try {
 		stats = fs.lstatSync(casperPath);
 	}
 	catch (e) {
-		casperPath = path.resolve( __dirname, 'node_modules', 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));		
+		casperPath = path.resolve( __dirname, 'node_modules', 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
 	}
 
 	var phantomjs = require( phantomjsPath );

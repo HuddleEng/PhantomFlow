@@ -70,10 +70,11 @@ module.exports.init = function ( options ) {
 			errorLog('[PhantomFlow Error]\n' + e.toString() + ' ' + (e.stack ?  e.stack : ''));
 		}
 
-		process.on('uncaughtException', handleException);
 		if(options.grunt && options.grunt.fail){
 			grunt_fatal_original = options.grunt.fail.fatal;
 			options.grunt.fail.fatal = handleException
+		} else {
+			process.on('uncaughtException', handleException);
 		}
 	}
 
@@ -243,9 +244,8 @@ module.exports.init = function ( options ) {
 			var children = [];
 
 			var childrenGraveyard = [];
-			var allGreen = true;
 
-			updateTableAndStats(testStatuses, passCount, failCount, childrenGraveyard.length, numTests, allGreen);
+			updateTableAndStats(testStatuses, passCount, failCount, 0, 0, numTests);
 			function pickUpJob(){
 				var fileIndex = files.length;
 				if( !fileIndex || children.length >= numProcesses){
@@ -285,9 +285,6 @@ module.exports.init = function ( options ) {
 
 					if(child.logsWritten) return;
 					child.logsWritten = true;
-
-					allGreen = allGreen && code === 0 && child.numFails === 0;
-
 
 					if ( code !== 0 ) {
 						log(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.' ).red );
@@ -409,8 +406,19 @@ module.exports.init = function ( options ) {
 
 					children = _.difference(children, deadChildren); // remove dead children
 					childrenGraveyard = childrenGraveyard.concat(deadChildren);
+
+					var numSuccessChildren = 0
+					var numFailedChildren = 0
+					childrenGraveyard.forEach(function (child) {
+						if(child.exitCode === 0 && child.numFails === 0){
+							numSuccessChildren++;
+						} else {
+							numFailedChildren++;
+						}
+					});
+
 					pickUpJob();
-					updateTableAndStats(testStatuses, passCount, failCount, childrenGraveyard.length, numTests, allGreen);
+					updateTableAndStats(testStatuses, passCount, failCount, numSuccessChildren, numFailedChildren, numTests);
 
 
 					//log(logMessage);

@@ -21,7 +21,7 @@ function errorLog(){
 var cliLog, cliErrorLog, table, box, gauge, screen, confirmation;
 var tableHeaders = ['Test file', 'Status'];
 
-function updateTableAndStats(statuses, passCount, failCount, numCompleted, numTests, allGreen){
+function updateTableAndStats(statuses, passCount, failCount, numSucceeded, numFailed, numTests){
     var dataArray = [];
     _.forEach(statuses, function(testData, fileName) {
         var status = testData.testStatus;
@@ -45,7 +45,7 @@ function updateTableAndStats(statuses, passCount, failCount, numCompleted, numTe
 
     table.setData({ headers: tableHeaders, data: dataArray.reverse()});
     box.setContent(passCount + ' succesful and ' + failCount + ' failed assertions so far.');
-    gauge.setStack([{percent: 100 - Math.ceil( (numTests - numCompleted) / numTests * 100), stroke: 'green'}, {percent: 0, stroke: 'red'}]);
+    gauge.setStack([{percent: Math.ceil(  numSucceeded / numTests * 100), stroke: 'green'}, {percent: Math.ceil( numFailed / numTests * 100), stroke: 'red'}]);
 
     _.throttle(screen.render, 500);
 

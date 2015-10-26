@@ -19,6 +19,7 @@ var glob = require( "glob" );
 var cp = require( 'child_process' );
 var wrench = require( 'wrench' );
 var async = require( 'async' );
+var log = console.log;
 var optionDebug;
 
 var grunt_fatal_original;
@@ -54,7 +55,6 @@ module.exports.init = function ( options ) {
 	var earlyExit = typeof options.earlyexit === 'undefined' ? false : options.earlyexit;
 
 	// Dashboard mode?
-	var log = console.log;
 	var errorLog = console.error;
 	var updateTableAndStats = _.noop;
 	var dashboardDone = _.noop;
@@ -175,7 +175,7 @@ module.exports.init = function ( options ) {
 			}
 
 			/*
-				Enable https://github.com/ariya/phantomjs/wiki/Troubleshooting#remote-debugging
+				Enable https://github.com/ariya/phantomjs/wiki/Troubleshootingremote-debugging
 			*/
 			if ( remoteDebug ) {
 				args.push(

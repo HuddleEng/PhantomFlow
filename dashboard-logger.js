@@ -44,7 +44,7 @@ function updateTableAndStats(statuses, passCount, failCount, numSucceeded, numFa
     });
 
     table.setData({ headers: tableHeaders, data: dataArray.reverse()});
-    box.setContent(passCount + ' succesful and ' + failCount + ' failed assertions so far.');
+    box.setContent(passCount + ' successful and ' + failCount + ' failed assertions so far.');
     gauge.setStack([{percent: Math.ceil(  numSucceeded / numTests * 100), stroke: 'green'}, {percent: Math.ceil( numFailed / numTests * 100), stroke: 'red'}]);
 
     _.throttle(screen.render, 500);

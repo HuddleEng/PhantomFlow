@@ -50,8 +50,8 @@ module.exports.init = function ( options ) {
 	var numProcesses = options.threads || 4;
 
 	/*
-		Set to false if you do not want the tests to return on the first failure
-	*/
+	 Set to false if you do not want the tests to return on the first failure
+	 */
 	var earlyExit = typeof options.earlyexit === 'undefined' ? false : options.earlyexit;
 
 	// Dashboard mode?
@@ -128,30 +128,30 @@ module.exports.init = function ( options ) {
 			var exitCode = 1;
 
 			glob.sync(
-					visualResultsPath + '/**/*.fail.png, ' +
-					xUnitPath + '/*.xml, ' +
-					dataPath + '/**/*.js' )
+				visualResultsPath + '/**/*.fail.png, ' +
+				xUnitPath + '/*.xml, ' +
+				dataPath + '/**/*.js' )
 				.forEach(
-					function ( file ) {
-						deleteFile( file ); // delete
-					}
-				);
+				function ( file ) {
+					deleteFile( file ); // delete
+				}
+			);
 
 			/*
-				Get the paths for all the tests
-			*/
+			 Get the paths for all the tests
+			 */
 			files = _.filter(
 				glob.sync( tests + '/**/*.test.js' ),
 				function ( file ) {
 					return isFile( file );
 				}
 			).map( function ( file ) {
-				return path.relative( tests, file );
-			} );
+					return path.relative( tests, file );
+				} );
 
 			/*
-				Filter tests down to match specified string
-			*/
+			 Filter tests down to match specified string
+			 */
 			if ( filterTests ) {
 				files = _.filter( files, function ( file ) {
 					return file.toLowerCase().indexOf( filterTests.toLowerCase() ) !== -1;
@@ -159,8 +159,8 @@ module.exports.init = function ( options ) {
 			}
 
 			/*
-				Stop if there are no tests
-			*/
+			 Stop if there are no tests
+			 */
 			var numTests = files.length;
 			if ( numTests === 0 ) {
 				eventEmitter.emit( 'exit' );
@@ -175,8 +175,8 @@ module.exports.init = function ( options ) {
 			}
 
 			/*
-				Enable https://github.com/ariya/phantomjs/wiki/Troubleshootingremote-debugging
-			*/
+			 Enable https://github.com/ariya/phantomjs/wiki/Troubleshootingremote-debugging
+			 */
 			if ( remoteDebug ) {
 				args.push(
 					'--remote-debugger-port=' + remoteDebugPort +
@@ -184,12 +184,13 @@ module.exports.init = function ( options ) {
 			}
 
 			/*
-				Setup arguments to be sent into PhantomJS
-			*/
+			 Setup arguments to be sent into PhantomJS
+			 */
+
 			args.push( changeSlashes( path.join( bootstrapPath, 'start.js' ) ) );
 			args.push( '--flowincludes=' + changeSlashes( includes ) );
 			args.push( '--flowtestsroot=' + changeSlashes( tests ) );
-			args.push( '--flowphantomcssroot=' + changeSlashes( path.join( __dirname, 'node_modules', 'phantomcss' ) ) );
+			args.push( '--flowphantomcssroot=' + changeSlashes(path.dirname(require.resolve( 'phantomcss' )) ));
 			args.push( '--flowlibraryroot=' + changeSlashes( bootstrapPath ) );
 			args.push( '--flowoutputroot=' + changeSlashes( dataPath ) );
 			args.push( '--flowxunitoutputroot=' + changeSlashes( xUnitPath ) );
@@ -214,7 +215,7 @@ module.exports.init = function ( options ) {
 			}
 
 			if (mismatchTolerance) {
-			    args.push('--mismatchTolerance=' + mismatchTolerance);
+				args.push('--mismatchTolerance=' + mismatchTolerance);
 			}
 
 			if ( casperArgs ) {
@@ -454,7 +455,7 @@ module.exports.init = function ( options ) {
 						console.log( '\n All the threads have completed (all process exit codes 0). \n'.grey );
 						console.log(exitCodesOutputString);
 					} else {
-						console.loglog('\nSome processes exited with errors:\n'.red);
+						console.log('\nSome processes exited with errors:\n'.red);
 						console.log(exitCodesOutputString);
 					}
 
@@ -712,31 +713,15 @@ function deleteFile( file ) {
 }
 
 function getCasperPath() {
-	var nodeModules = path.resolve( __dirname, 'node_modules', 'phantomcss', 'node_modules' );
-
-	var phantomjsPath = path.resolve( nodeModules, 'phantomjs' );
+	var phantomjsPath = require.resolve('phantomjs' );
 	var isWindows = /^win/.test( process.platform );
-	var casperPath = path.resolve( nodeModules, 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
+	var casperPath =  require.resolve( 'casperjs/bin/casperjs'+ ( isWindows? ".exe" : "" ));
 	var stats;
 
-	try {
-		stats = fs.lstatSync(phantomjsPath);
-	}
-	catch (e) {
-		phantomjsPath = 'phantomjs';
-		casperPath = path.resolve( __dirname, '..', 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
-	}
+	var pp = require(phantomjsPath);
 
-	try {
-		stats = fs.lstatSync(casperPath);
-	}
-	catch (e) {
-		casperPath = path.resolve( __dirname, 'node_modules', 'casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
-	}
-
-	var phantomjs = require( phantomjsPath );
-	if ( fs.existsSync( phantomjs.path ) ) {
-		process.env[ "PHANTOMJS_EXECUTABLE" ] = phantomjs.path;
+	if ( fs.existsSync( pp.path ) ) {
+		process.env[ "PHANTOMJS_EXECUTABLE" ] = pp.path;
 	} else {
 		log( "PhantomJS is not installed? Try `npm install`".bold.red );
 	}

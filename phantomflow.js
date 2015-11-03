@@ -713,17 +713,26 @@ function deleteFile( file ) {
 }
 
 function getCasperPath() {
-	var phantomjsPath = require.resolve('phantomjs' );
+	var nodeModules = path.resolve( __dirname, 'node_modules', 'phantomcss', 'node_modules' );
 	var isWindows = /^win/.test( process.platform );
-	var casperPath =  require.resolve( 'casperjs/bin/casperjs'+ ( isWindows? ".exe" : "" ));
-	var stats;
+	var casperEndPath = path.join('casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
+	var casperPath;
 
-	var pp = require(phantomjsPath);
+	try {
+		casperPath =  require.resolve( casperEndPath );
+	} catch (e) {
+		casperPath = path.resolve( nodeModules, casperEndPath);
 
-	if ( fs.existsSync( pp.path ) ) {
-		process.env[ "PHANTOMJS_EXECUTABLE" ] = pp.path;
-	} else {
-		log( "PhantomJS is not installed? Try `npm install`".bold.red );
+		if(resolvePhantomJS(nodeModules)){
+			casperPath = path.resolve( __dirname, '..', casperEndPath);
+		}
+
+		try {
+			stats = fs.lstatSync(casperPath);
+		}
+		catch (e) {
+			casperPath = path.resolve( __dirname, 'node_modules', casperEndPath);
+		}
 	}
 
 	if ( !fs.existsSync( casperPath ) ) {
@@ -731,4 +740,31 @@ function getCasperPath() {
 	}
 
 	return casperPath;
+}
+
+function resolvePhantomJS(nodeModules){
+	var phantomjsPath;
+
+	try {
+		phantomjsPath = require.resolve('phantomjs' );
+	} catch(e){
+		phantomjsPath = path.resolve( nodeModules, 'phantomjs' );
+		try {
+			fs.lstatSync(phantomjsPath);
+		}
+		catch (e) {
+			phantomjsPath = 'phantomjs';
+			return true; // is relative path
+		}
+	}
+
+	var phantom = require(phantomjsPath);
+
+	if ( fs.existsSync( phantom.path ) ) {
+		process.env[ "PHANTOMJS_EXECUTABLE" ] = phantom.path;
+	} else {
+		log( "PhantomJS is not installed? Try `npm install`".bold.red );
+	}
+
+	return false;
 }

@@ -718,13 +718,16 @@ function getCasperPath() {
 	var casperEndPath = path.join('casperjs', 'bin', 'casperjs' + ( isWindows? ".exe" : "" ));
 	var casperPath;
 
+	var phantomIsRelative = resolvePhantomJS(nodeModules);
+
 	try {
 		casperPath =  require.resolve( casperEndPath );
 	} catch (e) {
-		casperPath = path.resolve( nodeModules, casperEndPath);
 
-		if(resolvePhantomJS(nodeModules)){
+		if(phantomIsRelative){
 			casperPath = path.resolve( __dirname, '..', casperEndPath);
+		} else {
+			casperPath = path.resolve( nodeModules, casperEndPath);
 		}
 
 		try {

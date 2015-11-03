@@ -1,6 +1,6 @@
 {
 	"name": "phantomflow",
-	"version": "0.5.9",
+	"version": "0.5.10",
 	"description": "UI testing with PhantomCSS and Decision Trees",
 	"main": "phantomflow.js",
 	"repository": {

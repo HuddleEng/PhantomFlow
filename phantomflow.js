@@ -40,6 +40,7 @@ module.exports.init = function ( options ) {
 
 	var includes = path.resolve( options.includes || 'include' );
 	var tests = path.resolve( options.tests || 'test' ) + '/';
+	var testFileExtension = options.testFileExtension || '.test.js';
 	var results = path.resolve( options.results || 'test-results' );
 	var reports = path.resolve( options.reports || results + '/report/' );
 
@@ -141,7 +142,7 @@ module.exports.init = function ( options ) {
 			 Get the paths for all the tests
 			 */
 			files = _.filter(
-				glob.sync( tests + '/**/*.test.js' ),
+				glob.sync( tests + '/**/*' + testFileExtension ),
 				function ( file ) {
 					return isFile( file );
 				}

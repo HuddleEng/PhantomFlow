@@ -23,6 +23,7 @@ var tableHeaders = ['Test file', 'Status'];
 
 function updateTableAndStats(statuses, passCount, failCount, numSucceeded, numFailed, numTests){
     var dataArray = [];
+    var nowDate = new Date().getTime();
     _.forEach(statuses, function(testData, fileName) {
         var status = testData.testStatus;
         var row = [];
@@ -36,6 +37,12 @@ function updateTableAndStats(statuses, passCount, failCount, numSucceeded, numFa
             row = [fileName.red, status.red];
         } else {
             row = [fileName, status];
+        }
+
+        if(status === 'PENDING'){
+            row.push('');
+        } else {
+            row.push(((testData.endTime === Infinity ? nowDate : testData.endTime) - testData.startedTime)/1000 + 's');
         }
 
         row.push(testData.numPasses + ' passes', testData.numFails + ' fails');
@@ -97,7 +104,7 @@ module.exports = {
             height: '100%',
             border: {type: "line", fg: "cyan"},
             columnSpacing: 2,
-            columnWidth: [50, 12, 12, 12]
+            columnWidth: [50, 12, 12, 12, 12]
         });
 
 
@@ -148,4 +155,4 @@ module.exports = {
         confirmation.focus();
         screen.render();
     }
-}
+};

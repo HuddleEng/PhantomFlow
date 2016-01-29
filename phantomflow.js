@@ -5,7 +5,7 @@
  * Copyright (c) 2014 Huddle
  * Licensed under The MIT License (MIT).
  */
-
+require('console.table');
 var path = require( 'path' );
 var util = require( 'util' );
 var fs = require( 'fs' );
@@ -266,7 +266,9 @@ module.exports.init = function ( options ) {
 
 				child.hasErrored = false;
 				child.dead = false;
-				child.lastOutputTime = new Date().getTime();
+				child.startedTime = new Date().getTime();
+				child.endTime = Infinity;
+				child.lastOutputTime = child.startedTime;
 				child.logsWritten = false;
 				child.exitCode = null;
 				child.testFile = file;
@@ -284,6 +286,7 @@ module.exports.init = function ( options ) {
 				function onChildExit ( code ) {
 					child.dead = true;
 					child.exitCode = code;
+					child.endTime = new Date().getTime();
 
 					if(child.logsWritten) return;
 					child.logsWritten = true;
@@ -297,7 +300,8 @@ module.exports.init = function ( options ) {
 					}
 
 					child.testStatus = child.numFails > 0 ? 'FAIL' : 'SUCCESS';
-					log( '\n' + child.logPrefix + 'process has completed. \n'.yellow );
+					var processCompletedMessage = 'process has completed in '+ ((child.endTime - child.startedTime) / 1000) +'s\n';
+					log( '\n' + child.logPrefix + processCompletedMessage.yellow );
 				}
 
 				child.on( 'close', onChildExit);
@@ -305,8 +309,9 @@ module.exports.init = function ( options ) {
 				child.on( 'disconnect', onChildExit);
 
 				child.stdout.on( 'data', function ( buf ) {
-					var outputTime = new Date().getTime();
-					child.lastOutputTime = outputTime;
+					var timeNow = new Date().getTime();
+					var lineDuration = timeNow - child.lastOutputTime;
+					child.lastOutputTime = timeNow;
 
 					var bufstr = String( buf );
 
@@ -319,7 +324,12 @@ module.exports.init = function ( options ) {
 						child.hasErrored = true;
 					}
 
+					var firstLine = true;
 					bufstr.split( /\n/g ).forEach( function ( line ) {
+							lineDuration = firstLine ? lineDuration : 0;
+							firstLine = false;
+
+						line = child.logPrefix + '[' + lineDuration + 'ms] ' + line;
 
 						if ( /FAIL|\[PhantomCSS\] Screenshot capture failed/.test( line ) ) {
 							log( line.bold.red );
@@ -409,8 +419,8 @@ module.exports.init = function ( options ) {
 					children = _.difference(children, deadChildren); // remove dead children
 					childrenGraveyard = childrenGraveyard.concat(deadChildren);
 
-					var numSuccessChildren = 0
-					var numFailedChildren = 0
+					var numSuccessChildren = 0;
+					var numFailedChildren = 0;
 					childrenGraveyard.forEach(function (child) {
 						if(child.exitCode === 0 && child.numFails === 0){
 							numSuccessChildren++;
@@ -447,21 +457,28 @@ module.exports.init = function ( options ) {
 
 					var allZero = true;
 					var exitCodesOutputString = '';
+					var graveyardTable = [];
 					childrenGraveyard.forEach(function (child) {
-						exitCodesOutputString +=  child.logPrefix + (child.exitCode === 0 ? '[exit code 0]'.green : ('[exit code ' + child.exitCode + ']').red) + ' ' + (child.numPasses + " passes").green + ', ' + (child.numFails + " fails ").red + '\n';
+						exitCodesOutputString +=  child.logPrefix + (child.exitCode === 0 ? '[exit code 0]'.green : ('[exit code ' + child.exitCode + ']').red) + '\t' + (child.numPasses + " passes").green + '\t' + (child.numFails + " fails").red + '\tin ' + ((child.endTime - child.startedTime) / 1000) + 's\n';
+						graveyardTable.push({
+							'Test name': child.logPrefix,
+							'Exit code': child.exitCode,
+							'Passed assertions': child.numPasses + " passes",
+							'Failed assertions': child.numFails + " fails",
+							'Process time /s': ((child.endTime - child.startedTime) / 1000) + 's'
+						});
 						allZero = allZero && child.exitCode === 0;
 					});
 
 					if(allZero){
 						console.log( '\n All the threads have completed (all process exit codes 0). \n'.grey );
-						console.log(exitCodesOutputString);
 					} else {
 						console.log('\nSome processes exited with errors:\n'.red);
-						console.log(exitCodesOutputString);
 					}
 
+					console.table(graveyardTable);
+
 					loggedErrors.forEach( function ( error ) {
-						console.log( ( '== ' + error.file ).white );
 						console.log( error.msg.bold.red );
 					} );
 

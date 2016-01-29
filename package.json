@@ -1,42 +1,43 @@
 {
-	"name": "phantomflow",
-	"version": "0.5.11",
-	"description": "UI testing with PhantomCSS and Decision Trees",
-	"main": "phantomflow.js",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Huddle/PhantomFlow.git"
-	},
-	"keywords": [
-		"decision",
-		"casperjs",
-		"phantomjs",
-		"ui",
-		"testing",
-		"frontend",
-		"tdd",
-		"bdd",
-		"phantomcss"
-	],
-	"author": "James Cryer",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/Huddle/PhantomFlow/issues"
-	},
-	"homepage": "https://github.com/Huddle/PhantomFlow",
-	"dependencies": {
-		"glob": "~3.2.9",
-		"wrench": "~1.5.8",
-		"datauri": "^0.8.0",
-		"open": "0.0.4",
-		"connect": "~2.14.4",
-		"colors": "~0.6.2",
-		"lodash": "~2.4.1",
-		"phantomcss": "^0.11.0",
-		"async": "~0.8.0",
-		"blessed": "^0.1.81",
-		"blessed-contrib": "^2.3.3",
-		"cli-color": "^1.0.0",
-		"clui": "^0.3.1"
-	}
+  "name": "phantomflow",
+  "version": "0.5.11",
+  "description": "UI testing with PhantomCSS and Decision Trees",
+  "main": "phantomflow.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Huddle/PhantomFlow.git"
+  },
+  "keywords": [
+    "decision",
+    "casperjs",
+    "phantomjs",
+    "ui",
+    "testing",
+    "frontend",
+    "tdd",
+    "bdd",
+    "phantomcss"
+  ],
+  "author": "James Cryer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Huddle/PhantomFlow/issues"
+  },
+  "homepage": "https://github.com/Huddle/PhantomFlow",
+  "dependencies": {
+    "async": "^1.5.2",
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^2.3.3",
+    "cli-color": "^1.0.0",
+    "clui": "^0.3.1",
+    "colors": "~0.6.2",
+    "connect": "~2.14.4",
+    "console.table": "^0.4.0",
+    "datauri": "^0.8.0",
+    "glob": "~3.2.9",
+    "lodash": "~2.4.1",
+    "open": "0.0.4",
+    "phantomcss": "^0.11.0",
+    "wrench": "~1.5.8"
+  }
 }

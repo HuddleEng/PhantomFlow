@@ -329,7 +329,7 @@ module.exports.init = function ( options ) {
 							lineDuration = firstLine ? lineDuration : 0;
 							firstLine = false;
 
-						line = child.logPrefix + '[' + lineDuration + 'ms] ' + line;
+						line = child.logPrefix + '(' + lineDuration + 'ms) ' + line;
 
 						if ( /FAIL|\[PhantomCSS\] Screenshot capture failed/.test( line ) ) {
 							log( line.bold.red );

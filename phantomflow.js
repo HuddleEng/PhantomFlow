@@ -767,14 +767,15 @@ function resolvePhantomJS(nodeModules){
 	var phantomjsPath;
 
 	try {
-		phantomjsPath = require.resolve('phantomjs' );
+		phantomjsPath = require.resolve('phantomjs-prebuilt' );
+
 	} catch(e){
-		phantomjsPath = path.resolve( nodeModules, 'phantomjs' );
+		phantomjsPath = path.resolve( nodeModules, 'phantomjs-prebuilt' );
 		try {
 			fs.lstatSync(phantomjsPath);
 		}
 		catch (e) {
-			phantomjsPath = 'phantomjs';
+			phantomjsPath = 'phantomjs-prebuilt';
 			return true; // is relative path
 		}
 	}

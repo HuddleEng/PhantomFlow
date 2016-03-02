@@ -1,6 +1,6 @@
 {
   "name": "phantomflow",
-  "version": "0.5.14",
+  "version": "1.0.0",
   "description": "UI testing with PhantomCSS and Decision Trees",
   "main": "phantomflow.js",
   "repository": {
@@ -37,7 +37,7 @@
     "glob": "~3.2.9",
     "lodash": "~2.4.1",
     "open": "0.0.4",
-    "phantomcss": "^0.11.0",
+    "phantomcss": "^1.0.0",
     "wrench": "~1.5.8"
   }
 }

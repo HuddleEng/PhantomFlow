@@ -1,8 +1,8 @@
 /*ignore jshint console*/
 
 /*
- * phantomflow
- * Copyright (c) 2014 Huddle
+ * PhantomFlow
+ * Copyright (c) 2016 Huddle
  * Licensed under The MIT License (MIT).
  */
 require('console.table');
@@ -80,9 +80,6 @@ module.exports.init = function ( options ) {
 	}
 
 	var processIdleTimeout = _.isFinite(+options.processIdleTimeout) ? +options.processIdleTimeout : 0;
-
-	var threadCompletionCount = 0;
-	var fileGroups;
 
 	var dontDoVisuals = options.skipVisualTests;
 	var hideElements = options.hideElements || [];
@@ -325,15 +322,19 @@ module.exports.init = function ( options ) {
 					}
 
 					var firstLine = true;
-					bufstr.split( /\n/g ).forEach( function ( line ) {
+					bufstr.split(/\n/g).forEach(function (line) {
+						if (line.trim().length === 0) { // exit if there is an empty log
+							return;
+						}
+                        var originalLine = line;
 							lineDuration = firstLine ? lineDuration : 0;
 							firstLine = false;
 
 						line = child.logPrefix + '(' + lineDuration + 'ms) ' + line;
 
 						if ( /FAIL|\[PhantomCSS\] Screenshot capture failed/.test( line ) ) {
-							log( line.bold.red );
-							errorLog(child.logPrefix + '\n' + line.bold.red);
+							errorLog('\n' + line.bold.red);
+							
 							child.numFails++;
 
 							loggedErrors.push( {
@@ -351,18 +352,29 @@ module.exports.init = function ( options ) {
 						} else if ( /PASS/.test( line ) ) {
 							passCount++;
 							child.numPasses++;
-							log( line.green );
+							log('\n' + line.green );
 						} else if ( /DEBUG/.test( line ) ) {
 							log( ( '\n' + line.replace( /DEBUG/, '' ) + '\n' ).yellow );
 						} else if ( child.hasErrored ) {
-							log( line.bold.red );
-							errorLog(child.logPrefix + '\n  '+line.bold.red +'\n');
+
+							errorLog('\n  '+line.bold.red);
+
 							if ( earlyExit === true ) {
 								writeLog( results, child.failFileName, child.stdoutStr, log );
 								child.kill();
 							}
-						} else if ( numProcesses === 1 && optionDebug > 0 ) {
-							log( line.white );
+						} else if (numProcesses === 1 && optionDebug > 0) {
+							if (originalLine[0] === '#') { //if there is a casper detail message
+									log(line.red)
+								} else {
+									if( /URL Changed:""/g.test(line)){
+										// ignore
+									} else if( /resemblejscontainer/g.test(line)){
+										log('\n' + "Comparing visual tests...".white);
+									} else {
+										log('\n' + line.white);
+									}
+								}
 						}
 
 						child.stdoutStr += line;

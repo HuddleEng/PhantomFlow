@@ -1,8 +1,8 @@
 /*ignore jshint console*/
 
 /*
- * phantomflow
- * Copyright (c) 2014 Huddle
+ * PhantomFlow
+ * Copyright (c) 2016 Huddle
  * Licensed under The MIT License (MIT).
  */
 require('console.table');
@@ -80,9 +80,6 @@ module.exports.init = function ( options ) {
 	}
 
 	var processIdleTimeout = _.isFinite(+options.processIdleTimeout) ? +options.processIdleTimeout : 0;
-
-	var threadCompletionCount = 0;
-	var fileGroups;
 
 	var dontDoVisuals = options.skipVisualTests;
 	var hideElements = options.hideElements || [];
@@ -337,6 +334,7 @@ module.exports.init = function ( options ) {
 
 						if ( /FAIL|\[PhantomCSS\] Screenshot capture failed/.test( line ) ) {
 							errorLog('\n' + line.bold.red);
+							
 							child.numFails++;
 
 							loggedErrors.push( {
@@ -358,7 +356,9 @@ module.exports.init = function ( options ) {
 						} else if ( /DEBUG/.test( line ) ) {
 							log( ( '\n' + line.replace( /DEBUG/, '' ) + '\n' ).yellow );
 						} else if ( child.hasErrored ) {
+
 							errorLog('\n  '+line.bold.red);
+
 							if ( earlyExit === true ) {
 								writeLog( results, child.failFileName, child.stdoutStr, log );
 								child.kill();
@@ -367,7 +367,13 @@ module.exports.init = function ( options ) {
 							if (originalLine[0] === '#') { //if there is a casper detail message
 									log(line.red)
 								} else {
-									log('\n' + line.white);
+									if( /URL Changed:""/g.test(line)){
+										// ignore
+									} else if( /resemblejscontainer/g.test(line)){
+										log('\n' + "Comparing visual tests...".white);
+									} else {
+										log('\n' + line.white);
+									}
 								}
 						}
 

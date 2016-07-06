@@ -181,6 +181,14 @@ Rebasing is the process of deleting an original visual test, and creating a new 
 
 ![PhantomFlow UI: Rebase button](https://raw.githubusercontent.com/Huddle/PhantomFlow/master/rebase-vis.png)
 
+### Coverage
+
+PhantomFlow will look for a `__coverage__` property on the window object at the end of each test flow. If found the coverage data will be exported to the `coverage` directory under `test-results` (or wherever you have set result root folder) as JSON files with the extension `.coverage.json`. PhantomFlow doesn't handle coverage data itself, but if you've instrumented your application code using a tool like [babel-plugin-__coverage__](https://github.com/dtinth/babel-plugin-__coverage__) the exported data can be fed directly into [Istanbul](https://github.com/gotwarlost/istanbul). e.g.
+
+```
+istanbul report --include test-results/coverage/**/*.coverage.json --dir coverage html
+```
+
 ### What next?
 
 We've been using this testing style for many months on Huddle's biggest UI application. It's still an evolving idea but for those of us that actively worked on it, it's making a huge difference to the way we think about UI, and how we communicate about UI. It supports TDD well, we use it for 'unit' testing UI but it has great potential for end-to-end as well. I'd also like to do more work on the visualisations, they look great and are very communicable, but they could be a better.  Of course, this is an Open Source project and it would be great to see contributions.

@@ -91,6 +91,7 @@ module.exports.init = function ( options ) {
 	var visualTestsPath = changeSlashes( tests + '/visuals/' );
 
 	var dataPath = changeSlashes( results + '/data/' );
+	var coveragePath = changeSlashes( results + '/coverage/' );
 	var xUnitPath = changeSlashes( results + '/xunit/' );
 	var debugPath = changeSlashes( results + '/debug/' );
 	var reportPath = changeSlashes( reports );
@@ -128,9 +129,9 @@ module.exports.init = function ( options ) {
 			glob.sync(
 				visualResultsPath + '/**/*.fail.png, ' +
 				xUnitPath + '/*.xml, ' +
-				dataPath + '/**/*.js' )
-				.forEach(
-				function ( file ) {
+				dataPath + '/**/*.js, ' +
+				coveragePath + '/**/*.js')
+				.forEach(function ( file ) {
 					deleteFile( file ); // delete
 				}
 			);
@@ -191,6 +192,7 @@ module.exports.init = function ( options ) {
 			args.push( '--flowphantomcssroot=' + changeSlashes(path.dirname(require.resolve( 'phantomcss' )) ));
 			args.push( '--flowlibraryroot=' + changeSlashes( bootstrapPath ) );
 			args.push( '--flowoutputroot=' + changeSlashes( dataPath ) );
+			args.push( '--flowcoverageroot=' + changeSlashes( coveragePath ) );
 			args.push( '--flowxunitoutputroot=' + changeSlashes( xUnitPath ) );
 			args.push( '--flowvisualdebugroot=' + changeSlashes( debugPath ) );
 			args.push( '--flowvisualstestroot=' + changeSlashes( visualTestsPath ) );
@@ -224,6 +226,7 @@ module.exports.init = function ( options ) {
 				deleteFolderRecursive( reportPath );
 				_.forEach( files, function( file ){
 					deleteFolderRecursive( dataPath + file );
+					deleteFolderRecursive( coveragePath + file );
 					deleteFolderRecursive( debugPath + file );
 					deleteFolderRecursive( visualResultsPath + file );
 				});

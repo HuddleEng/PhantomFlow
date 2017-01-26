@@ -186,17 +186,17 @@ module.exports.init = function ( options ) {
 			 Setup arguments to be sent into PhantomJS
 			 */
 
-			args.push( changeSlashes( path.join( bootstrapPath, 'start.js' ) ) );
-			args.push( '--flowincludes=' + changeSlashes( includes ) );
-			args.push( '--flowtestsroot=' + changeSlashes( tests ) );
-			args.push( '--flowphantomcssroot=' + changeSlashes(path.dirname(require.resolve( 'phantomcss' )) ));
-			args.push( '--flowlibraryroot=' + changeSlashes( bootstrapPath ) );
-			args.push( '--flowoutputroot=' + changeSlashes( dataPath ) );
-			args.push( '--flowcoverageroot=' + changeSlashes( coveragePath ) );
-			args.push( '--flowxunitoutputroot=' + changeSlashes( xUnitPath ) );
-			args.push( '--flowvisualdebugroot=' + changeSlashes( debugPath ) );
-			args.push( '--flowvisualstestroot=' + changeSlashes( visualTestsPath ) );
-			args.push( '--flowvisualsoutputroot=' + changeSlashes( visualResultsPath ) );
+			args.push( '"' + changeSlashes( path.join( bootstrapPath, 'start.js' ) ) + '"' );
+			args.push( '--flowincludes="' + changeSlashes( includes ) + '"' );
+			args.push( '--flowtestsroot="' + changeSlashes( tests ) + '"' );
+			args.push( '--flowphantomcssroot="' + changeSlashes(path.dirname(require.resolve( 'phantomcss' )) ) + '"' );
+			args.push( '--flowlibraryroot="' + changeSlashes( bootstrapPath ) + '"' );
+			args.push( '--flowoutputroot="' + changeSlashes( dataPath ) + '"' );
+			args.push( '--flowcoverageroot="' + changeSlashes( coveragePath ) + '"' );
+			args.push( '--flowxunitoutputroot="' + changeSlashes( xUnitPath ) + '"' );
+			args.push( '--flowvisualdebugroot="' + changeSlashes( debugPath ) + '"' );
+			args.push( '--flowvisualstestroot="' + changeSlashes( visualTestsPath ) + '"' );
+			args.push( '--flowvisualsoutputroot="' + changeSlashes( visualResultsPath ) + '"' );
 
 			if ( optionDebug !== void 0 ) {
 				args.push( '--flowdebug=' + optionDebug );

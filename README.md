@@ -165,7 +165,7 @@ Debugging is often a painful part of writing tests with PhantomJS.  If you're ex
 	});
 ```
 
-* PhantomJS provides [remote debugging](https://github.com/ariya/phantomjs/wiki/Troubleshooting#remote-debugging) functionality.  This setting allows you to use the debugger; statement and add breakpoints with the [Web Inspector interface](https://www.webkit.org/blog/1620/webkit-remote-debugging/).  Remote debugging can be use in conjunction with the debug modes described above.
+* PhantomJS provides [remote debugging](http://phantomjs.org/troubleshooting.html#remote-debugging) functionality.  This setting allows you to use the debugger; statement and add breakpoints with the Web Inspector interface.  Remote debugging can be use in conjunction with the debug modes described above.
 
 ```javascript
 	var flow = require('../phantomflow').init({

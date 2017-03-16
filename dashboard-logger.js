@@ -61,6 +61,7 @@ function updateTableAndStats(statuses, passCount, failCount, numSucceeded, numFa
 
 module.exports = {
     init: function () {
+        var dashboard = this;
         var blessed = require('blessed')
             , contrib = require('blessed-contrib');
 
@@ -136,6 +137,9 @@ module.exports = {
 
         screen.append(confirmation);
 
+        screen.key(['r'], function(ch, key) {
+            if (dashboard.report) dashboard.report();
+        });
         screen.key(['escape', 'q', 'C-c'], function(ch, key) {
             return process.exit(0);
         });
@@ -150,8 +154,9 @@ module.exports = {
 
     update: updateTableAndStats,
 
-    finish: function () {
-        confirmation.display('All tests have completed. Hit enter to dismiss this message. Hit q or C-c to quit.', 0);
+    finish: function (isReportEnabled) {
+        var reportHint = isReportEnabled ? ' Hit r to view the report.' : '';
+        confirmation.display('All tests have completed. Hit enter to dismiss this message.' + reportHint + ' Hit q or C-c to quit.', 0);
         confirmation.focus();
         screen.render();
     }

@@ -105,17 +105,24 @@ module.exports.init = function ( options ) {
 		log( 'If a failure occurs, a report will not be generated. \n'.yellow );
 	}
 
+	function report() {
+		var defaultPort = options.dashboard? 9002 : 9001;
+		if ( showReport( reportPath, options.port || defaultPort, {
+				src: visualTestsPath,
+				res: visualResultsPath
+			} ) ) {
+			eventEmitter.emit( 'exit' );
+		}
+		return;
+	}
+
+	if (options.dashboard && options.createReport) {
+		dashboardLogger.report = report;
+	}
+
 	return {
 		event: eventEmitter,
-		report: function report() {
-			if ( showReport( reportPath, options.port || 9001, {
-					src: visualTestsPath,
-					res: visualResultsPath
-				} ) ) {
-				eventEmitter.emit( 'exit' );
-			}
-			return;
-		},
+		report: report,
 		run: function ( done ) {
 
 			var loggedErrors = [];
@@ -337,7 +344,7 @@ module.exports.init = function ( options ) {
 
 						if ( /FAIL|\[PhantomCSS\] Screenshot capture failed/.test( line ) ) {
 							errorLog('\n' + line.bold.red);
-							
+
 							child.numFails++;
 
 							loggedErrors.push( {
@@ -461,14 +468,6 @@ module.exports.init = function ( options ) {
 					if(options.grunt && options.grunt.fail && options.grunt.fail.fatal && grunt_fatal_original){
 						options.grunt.fail.fatal = grunt_fatal_original;
 					}
-					dashboardDone();
-
-					if(options.dashboard){
-						// keep process alive
-						process.stdin.resume();
-						dashboardDone();
-						return;
-					}
 
 					var allZero = true;
 					var exitCodesOutputString = '';
@@ -486,19 +485,21 @@ module.exports.init = function ( options ) {
 					});
 
 					if(allZero){
-						console.log( '\n All the threads have completed (all process exit codes 0). \n'.grey );
+						log( ('\n All the threads have completed (all process exit codes 0). \n').grey );
 					} else {
-						console.log('\nSome processes exited with errors:\n'.red);
+						log('\nSome processes exited with errors:\n'.red);
 					}
 
-					console.table(graveyardTable);
+					if (!options.dashboard) {
+						console.table(graveyardTable);
+					}
 
 					loggedErrors.forEach( function ( error ) {
-						console.log( error.msg.bold.red );
+						log( error.msg.bold.red );
 					} );
 
-					console.log(
-						( 'Completed ' + ( failCount + passCount ) + ' assertions in ' + Math.round( ( Date.now() - time ) / 1000 ) + ' seconds. ' ) +
+					log(
+						( 'Completed ' + ( failCount + passCount ) + ' assertions in ' + Math.round( ( Date.now() - time ) / 1000 ) + ' seconds. ' ).white +
 						( failCount + ' assertions failed, ' ).bold.red +
 						( passCount + ' assertions passed. ' ).bold.green );
 
@@ -519,8 +520,14 @@ module.exports.init = function ( options ) {
 						);
 					}
 
+					if (options.dashboard) {
+						// keep process alive
+						process.stdin.resume();
+						dashboardDone(options.createReport);
+						return;
+					}
 
-					if ( done ) {
+					if ( done && !options.dashboard) {
 						done( exitCode, { passCount: passCount, failCount: failCount, loggedErrors: loggedErrors });
 					}
 				}

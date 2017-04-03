@@ -1,7 +1,7 @@
 PhantomFlow
 ===========
 
-**UI testing with decision trees**. An experimental approach to UI testing, based on [Decision Trees](http://en.wikipedia.org/wiki/Decision_tree). A NodeJS wrapper for [PhantomJS](http://github.com/ariya/phantomjs/), [CasperJS](http://github.com/n1k0/casperjs) and [PhantomCSS](http://github.com/Huddle/PhantomCSS), PhantomFlow enables a fluent way of describing user flows in code whilst generating [structured tree data](http://github.com/Huddle/PhantomFlow/tree/master/test-results/data/flows/coffeemachine.test.js/Get a coffee.json) for visualisation.
+**UI testing with decision trees**. An experimental approach to UI testing, based on [Decision Trees](http://en.wikipedia.org/wiki/Decision_tree). A NodeJS wrapper for [PhantomJS](http://github.com/ariya/phantomjs/), [CasperJS](http://github.com/n1k0/casperjs) and [PhantomCSS](http://github.com/Huddle/PhantomCSS), PhantomFlow enables a fluent way of describing user flows in code whilst generating [structured tree data](http://github.com/Huddle/PhantomFlow/tree/master/test-results/data/flows/coffeemachine.test.js/Get%20a%20coffee.json) for visualisation.
 
 ![PhantomFlow Report: Test suite overview with radial Dendrogram and pie visualisation](https://raw.githubusercontent.com/Huddle/PhantomFlow/master/huddle-vis.png)
 

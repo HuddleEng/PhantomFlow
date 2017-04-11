@@ -116,6 +116,11 @@ module.exports.init = function ( options ) {
 		return;
 	}
 
+	function quoteItForWindows(str) {
+		var isWindows = /^win/.test(process.platform);
+		return isWindows ? '"' + str + '"' : str;
+	}
+
 	if (options.dashboard && options.createReport) {
 		dashboardLogger.report = report;
 	}
@@ -193,17 +198,18 @@ module.exports.init = function ( options ) {
 			 Setup arguments to be sent into PhantomJS
 			 */
 
-			args.push( '"' + changeSlashes( path.join( bootstrapPath, 'start.js' ) ) + '"' );
-			args.push( '--flowincludes="' + changeSlashes( includes ) + '"' );
-			args.push( '--flowtestsroot="' + changeSlashes( tests ) + '"' );
-			args.push( '--flowphantomcssroot="' + changeSlashes(path.dirname(require.resolve( 'phantomcss' )) ) + '"' );
-			args.push( '--flowlibraryroot="' + changeSlashes( bootstrapPath ) + '"' );
-			args.push( '--flowoutputroot="' + changeSlashes( dataPath ) + '"' );
-			args.push( '--flowcoverageroot="' + changeSlashes( coveragePath ) + '"' );
-			args.push( '--flowxunitoutputroot="' + changeSlashes( xUnitPath ) + '"' );
-			args.push( '--flowvisualdebugroot="' + changeSlashes( debugPath ) + '"' );
-			args.push( '--flowvisualstestroot="' + changeSlashes( visualTestsPath ) + '"' );
-			args.push( '--flowvisualsoutputroot="' + changeSlashes( visualResultsPath ) + '"' );
+			args.push(  quoteItForWindows(changeSlashes( path.join( bootstrapPath, 'start.js' ) ) ) );
+			args.push( '--flowincludes=' + quoteItForWindows(changeSlashes( includes ) ) );
+			args.push( '--flowtestsroot=' + quoteItForWindows(changeSlashes( tests ))  );
+			args.push( '--flowphantomcssroot=' + quoteItForWindows(changeSlashes(path.dirname(require.resolve( 'phantomcss' )) ) ) );
+			args.push( '--flowlibraryroot=' + quoteItForWindows(changeSlashes( bootstrapPath ) ) );
+			args.push( '--flowoutputroot=' + quoteItForWindows(changeSlashes( dataPath ) ) );
+			args.push( '--flowcoverageroot=' + quoteItForWindows(changeSlashes( coveragePath )) );
+			args.push( '--flowxunitoutputroot=' + quoteItForWindows(changeSlashes( xUnitPath ) ));
+			args.push( '--flowxunitoutputroot=' + quoteItForWindows(changeSlashes( xUnitPath )) );
+			args.push( '--flowvisualdebugroot=' + quoteItForWindows(changeSlashes( debugPath ) ) );
+			args.push( '--flowvisualstestroot=' + quoteItForWindows(changeSlashes( visualTestsPath ) ) );
+			args.push( '--flowvisualsoutputroot=' + quoteItForWindows(changeSlashes( visualResultsPath ) ) );
 
 			if ( optionDebug !== void 0 ) {
 				args.push( '--flowdebug=' + optionDebug );

@@ -14,7 +14,7 @@ The above visualisation is a real-world example, showing the complexity of visua
 * Support TDD and BDD for web applications and responsive web sites
 * Provide a fast feedback loop for UI testing
 * Raise profile of visual regression testing
-* Support misual regression workflows, quick inspection & rebasing via UI.
+* Support visual regression workflows, quick inspection & rebasing via UI.
 
 ### Install
 
@@ -27,7 +27,7 @@ PhantomFlow also comes as grunt plugin! [grunt-phantomflow](http://github.com/Hu
 
 ### Try it!
 
-* `node test/test.js` - First run will create visual test baslines with PhantomCSS
+* `node test/test.js` - First run will create visual test baselines with PhantomCSS
 * `node test/test.js` - Second run will compare baseline visuals with the latest screenshots. This'll pass because there have been no changes.
 * `node test/test.js report` - An optional step to load the Decision tree visualisation into your Web browser
 * `node test/test.js dashboard` - Run the tests in dashboard mode to see test progress (useful for many parallelised tests)
@@ -35,7 +35,7 @@ PhantomFlow also comes as grunt plugin! [grunt-phantomflow](http://github.com/Hu
 ![PhantomFlow Dashboard mode: see parallel test run progress](https://raw.githubusercontent.com/Huddle/PhantomFlow/master/flow-dashboard.gif)
 
 
-Mac OSX users should be aware that PhantomJS doesn't load the FontAwesome glyths used in the test suite, I don't understand why.  I fixed this locally by downloading FontAwesome and double clicking on the .otf file to install the font.
+Mac OSX users should be aware that PhantomJS doesn't load the FontAwesome glyphs used in the test suite, I don't understand why.  I fixed this locally by downloading FontAwesome and double clicking on the .otf file to install the font.
 
 There are two example test suites, these suites will be executed in parallel, the command line output is a bit muddled as a result.
 
@@ -158,7 +158,7 @@ Debugging is often a painful part of writing tests with PhantomJS.  If you're ex
 	});
 ```
 
-* Enable debug mode 2, same as mode 1 but will also generate full-page screenshots per step, to allow to see what's actualy going on.
+* Enable debug mode 2, same as mode 1 but will also generate full-page screenshots per step, to allow to see what's actually going on.
 ```javascript
 	var flow = require('../phantomflow').init({
 		debug: 2

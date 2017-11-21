@@ -1,3 +1,6 @@
+**Unmaintained notice**: As of December 22nd 2017 this project will no longer be maintained. What started out as a creative experiment four years ago became a significant tool in Huddle's Web development workflow, as well as the workflows of external Web engineers.  But like [PhantomCSS, its time to move on](https://github.com/Huddle/PhantomCSS#why-is-this-project-no-longer-maintained).
+
+
 PhantomFlow
 ===========
 

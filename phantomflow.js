@@ -503,7 +503,7 @@ module.exports.init = function ( options ) {
 							'Failed assertions': child.numFails + " fails",
 							'Process time /s': ((child.endTime - child.startedTime) / 1000) + 's'
 						});
-						allZero = allZero && child.exitCode === 0;
+                        allZero = allZero && (child.exitCode === 0 || child.retried);
 					});
 
 					if(allZero){

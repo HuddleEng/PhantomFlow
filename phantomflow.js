@@ -49,6 +49,7 @@ module.exports.init = function ( options ) {
 	var remoteDebugPort = options.remoteDebugPort || 9000;
 
 	var numProcesses = options.threads || 4;
+    var MAX_RETRIES_NON_ZERO_EXITS = options.nonZeroExitRetries || 1;
 
 	/*
 	 Set to false if you do not want the tests to return on the first failure
@@ -135,6 +136,7 @@ module.exports.init = function ( options ) {
 			var passCount = 0;
 			var isFinished = false;
 			var files;
+            var nonZeroExitFileRetries = {};
 
 			var exitCode = 1;
 
@@ -291,26 +293,38 @@ module.exports.init = function ( options ) {
 				child.stdoutStr = '';
 				child.numFails = 0;
 				child.numPasses = 0;
-				children.push(child);
+                child.retried = false;
+                children.push(child);
 
 				testStatuses[child.testFile] = child;
 				child.testStatus = 'RUNNING';
 
-				function onChildExit ( code ) {
-					child.dead = true;
-					child.exitCode = code;
-					child.endTime = new Date().getTime();
+                nonZeroExitFileRetries[child.file] = nonZeroExitFileRetries[child.file] || 1;
 
-					if(child.logsWritten) return;
-					child.logsWritten = true;
+                function onChildExit ( code ) {
 
-					if ( code !== 0 ) {
-						log(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.' ).red );
-						errorLog(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned.\n' ).red );
-						writeLog( results, child.failFileName, child.stdoutStr, log );
-						child.testStatus = 'FAIL';
-						return;
-					}
+                    child.dead = true;
+                    child.exitCode = code;
+                    child.endTime = new Date().getTime();
+                    if(child.logsWritten) return;
+                    child.logsWritten = true;
+
+                    if ( code !== 0 ) {
+                        if ( nonZeroExitFileRetries[child.file] >= MAX_RETRIES_NON_ZERO_EXITS ) {
+                            log(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned after '+MAX_RETRIES_NON_ZERO_EXITS+' retries.' ).red );
+                            errorLog(child.logPrefix + ( 'It broke, sorry. Process aborted. Non-zero code (' + code + ') returned after '+MAX_RETRIES_NON_ZERO_EXITS+' retries.\n' ).red );
+                            writeLog( results, child.failFileName, child.stdoutStr, log );
+                            child.testStatus = 'FAIL';
+                            return;
+                        } else {
+                            nonZeroExitFileRetries[child.file]++;
+                            child.retried = true;
+                            files.push(file);
+                        }
+
+                    }
+
+
 
 					child.testStatus = child.numFails > 0 ? 'FAIL' : 'SUCCESS';
 					var processCompletedMessage = 'process has completed in '+ ((child.endTime - child.startedTime) / 1000) +'s\n';
@@ -453,8 +467,10 @@ module.exports.init = function ( options ) {
 						if(child.exitCode === 0 && child.numFails === 0){
 							numSuccessChildren++;
 						} else {
-							numFailedChildren++;
-						}
+                            if(!child.retried){
+                                numFailedChildren++;
+                            }
+                        }
 					});
 
 					pickUpJob();

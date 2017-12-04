@@ -21,7 +21,12 @@ The above visualisation is a real-world example, showing the complexity of visua
 
 ### Install
 
-* Install with git `git clone https://github.com/Huddle/PhantomFlow.git` `cd phantomflow` `npm install`
+* Install with git 
+```shell
+$ git clone https://github.com/Huddle/PhantomFlow.git
+$ cd PhantomFlow
+$ npm install
+```
 * As a NodeJS dependency `npm install phantomflow`
 
 ### See also
